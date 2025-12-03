@@ -1,0 +1,1809 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎲 Fantacalcio Luck Analyzer</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; padding: 20px; }
+    .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    h1 { text-align: center; color: #333; margin-bottom: 5px; font-size: 24px; }
+    .subtitle { text-align: center; color: #666; margin-bottom: 20px; font-size: 14px; }
+    .tabs { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 15px; }
+    .tab { padding: 8px 16px; background: #e5e5e5; border: none; border-radius: 8px 8px 0 0; cursor: pointer; font-size: 13px; }
+    .tab.active { background: white; border: 1px solid #ddd; border-bottom: none; font-weight: bold; }
+    .content { border: 1px solid #ddd; border-radius: 0 8px 8px 8px; padding: 20px; min-height: 400px; }
+    .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 14px; }
+    .btn-primary { background: #10b981; color: white; }
+    .btn-secondary { background: #3b82f6; color: white; }
+    .btn-purple { background: #8b5cf6; color: white; }
+    .btn-orange { background: #f97316; color: white; }
+    .btn:hover { opacity: 0.9; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 13px; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+    th { background: #f9fafb; font-weight: bold; }
+    input[type="text"], input[type="number"] { width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; }
+    .info-box { background: #dbeafe; padding: 15px; border-radius: 6px; margin: 15px 0; font-size: 13px; }
+    .info-box b { display: block; margin-bottom: 5px; }
+    .flex { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 15px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin: 15px 0; }
+    .card { border: 1px solid #ddd; border-radius: 8px; padding: 15px; }
+    .card h3 { font-size: 14px; margin-bottom: 10px; }
+    .luck-positive { background: #10b981; color: white; padding: 4px 8px; border-radius: 4px; font-weight: bold; }
+    .luck-negative { background: #ef4444; color: white; padding: 4px 8px; border-radius: 4px; font-weight: bold; }
+    .luck-neutral { background: #e5e5e5; padding: 4px 8px; border-radius: 4px; }
+    label { font-size: 13px; font-weight: 500; }
+    .hidden { display: none; }
+    
+    /* What-If specific styles */
+    .whatif-controls { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 10px; margin-bottom: 20px; color: white; }
+    .whatif-controls label { color: white; }
+    .whatif-controls input[type="number"] { width: 120px; padding: 8px; border: none; border-radius: 6px; font-size: 14px; }
+    .progress-container { background: #e5e5e5; border-radius: 10px; height: 20px; overflow: hidden; margin: 15px 0; }
+    .progress-bar { background: linear-gradient(90deg, #10b981, #3b82f6); height: 100%; transition: width 0.3s; display: flex; align-items: center; justify-content: center; color: white; font-size: 11px; font-weight: bold; }
+    .simulation-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0; }
+    .stat-card { background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); padding: 15px; border-radius: 10px; text-align: center; }
+    .stat-card .value { font-size: 28px; font-weight: bold; color: #333; }
+    .stat-card .label { font-size: 12px; color: #666; margin-top: 5px; }
+    .position-bar { height: 24px; background: #e5e5e5; border-radius: 4px; overflow: hidden; display: flex; }
+    .position-segment { height: 100%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; color: white; min-width: 20px; }
+    .highlight-row { background: #fef3c7 !important; }
+    .highlight-row td { font-weight: bold; }
+    .comparison-arrow { font-size: 16px; margin: 0 5px; }
+    .comparison-arrow.up { color: #10b981; }
+    .comparison-arrow.down { color: #ef4444; }
+    .comparison-arrow.same { color: #666; }
+    .whatif-legend { display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; margin: 15px 0; font-size: 12px; }
+    .whatif-legend-item { display: flex; align-items: center; gap: 5px; }
+    .whatif-legend-color { width: 16px; height: 16px; border-radius: 3px; }
+    
+    /* Head-to-Head specific styles */
+    .h2h-matrix { overflow-x: auto; }
+    .h2h-matrix table { font-size: 11px; }
+    .h2h-matrix th, .h2h-matrix td { padding: 6px; min-width: 70px; }
+    .h2h-matrix .team-header { writing-mode: vertical-rl; text-orientation: mixed; transform: rotate(180deg); max-width: 40px; height: 100px; font-weight: bold; }
+    .h2h-cell { position: relative; }
+    .h2h-cell .record { font-weight: bold; font-size: 12px; }
+    .h2h-cell .details { font-size: 9px; color: #666; margin-top: 2px; }
+    .h2h-win { background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); }
+    .h2h-lose { background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); }
+    .h2h-draw { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); }
+    .h2h-self { background: #f3f4f6; }
+    .h2h-no-match { background: #f9fafb; color: #9ca3af; }
+    .kryptonite-card { background: linear-gradient(135deg, #fecaca 0%, #f87171 100%); border-radius: 10px; padding: 15px; }
+    .kryptonite-card h4 { color: #991b1b; margin-bottom: 10px; }
+    .victim-card { background: linear-gradient(135deg, #bbf7d0 0%, #4ade80 100%); border-radius: 10px; padding: 15px; }
+    .victim-card h4 { color: #166534; margin-bottom: 10px; }
+    .rival-item { display: flex; justify-content: space-between; align-items: center; padding: 8px; background: rgba(255,255,255,0.7); border-radius: 6px; margin-bottom: 6px; }
+    .rival-item .name { font-weight: bold; }
+    .rival-item .record { font-size: 12px; }
+    .dominance-bar { height: 20px; background: #e5e5e5; border-radius: 10px; overflow: hidden; display: flex; }
+    .dominance-segment { height: 100%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; color: white; }
+    .dominance-wins { background: #10b981; }
+    .dominance-draws { background: #f59e0b; }
+    .dominance-losses { background: #ef4444; }
+    
+    /* Variance Analysis specific styles */
+    .variance-meter { position: relative; height: 40px; background: linear-gradient(90deg, #fee2e2 0%, #fef3c7 25%, #d1fae5 50%, #fef3c7 75%, #fee2e2 100%); border-radius: 8px; margin: 10px 0; }
+    .variance-range { position: absolute; height: 100%; background: rgba(59, 130, 246, 0.3); border: 2px solid #3b82f6; border-radius: 6px; }
+    .variance-median { position: absolute; width: 4px; height: 100%; background: #1d4ed8; border-radius: 2px; transform: translateX(-50%); }
+    .variance-floor { position: absolute; width: 3px; height: 100%; background: #ef4444; transform: translateX(-50%); }
+    .variance-ceiling { position: absolute; width: 3px; height: 100%; background: #10b981; transform: translateX(-50%); }
+    .variance-dot { position: absolute; width: 8px; height: 8px; background: #6b7280; border-radius: 50%; top: 50%; transform: translate(-50%, -50%); }
+    .variance-label { position: absolute; font-size: 9px; font-weight: bold; top: -14px; transform: translateX(-50%); white-space: nowrap; }
+    .reliable-badge { background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: bold; }
+    .boom-bust-badge { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: bold; }
+    .consistency-bar { height: 8px; background: #e5e5e5; border-radius: 4px; overflow: hidden; }
+    .consistency-fill { height: 100%; border-radius: 4px; }
+    .sparkline { display: flex; align-items: flex-end; gap: 2px; height: 30px; }
+    .sparkline-bar { flex: 1; background: #3b82f6; border-radius: 2px 2px 0 0; min-width: 4px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎲 Fantacalcio Luck Analyzer</h1>
+    <p class="subtitle">Analisi fortuna completa per il tuo fantacalcio</p>
+    
+    <div class="tabs">
+      <button class="tab active" onclick="showTab('input')">📝 Dati</button>
+      <button class="tab" onclick="showTab('results')">📊 Fortuna</button>
+      <button class="tab" onclick="showTab('stats')">📈 Stats</button>
+      <button class="tab" onclick="showTab('pythagorean')">🔬 Pitagorica</button>
+      <button class="tab" onclick="showTab('schedule')">📅 Calendario</button>
+      <button class="tab" onclick="showTab('rankings')">🏆 Top</button>
+      <button class="tab" onclick="showTab('whatif')">🎰 What If</button>
+      <button class="tab" onclick="showTab('h2h')">⚔️ Scontri Virtuali</button>
+      <button class="tab" onclick="showTab('variance')">📉 Varianza</button>
+    </div>
+    
+    <div class="content">
+      <div id="tab-input">
+        <div class="info-box" style="margin-bottom: 15px;">
+          <b>📖 Benvenuto nel Fantacalcio Luck Analyzer!</b>
+          <br><br>
+          <b>🎯 A cosa serve questo strumento?</b>
+          <br>Questo tool analizza i risultati del tuo fantacalcio per scoprire quanto la FORTUNA (o sfortuna) abbia influenzato la tua stagione. Risponde a domande come:
+          <br>• "Ho vinto perché sono bravo o perché sono stato fortunato?"
+          <br>• "Meritavo di più in base ai punteggi che ho fatto?"
+          <br>• "Chi è la squadra più costante? E chi è imprevedibile?"
+          <br><br>
+          <b>📝 Come inserire i dati:</b>
+          <br>1. <b>Numero di giornate</b>: Imposta quante giornate sono state giocate
+          <br>2. <b>Per ogni squadra inserisci</b>:
+          <br>&nbsp;&nbsp;&nbsp;• Nome della squadra
+          <br>&nbsp;&nbsp;&nbsp;• Punteggio fantacalcio di OGNI giornata (es: 72, 68, 75...)
+          <br>&nbsp;&nbsp;&nbsp;• Numero di Vittorie REALI (V)
+          <br>&nbsp;&nbsp;&nbsp;• Numero di Pareggi REALI (P)
+          <br>3. Clicca <b>"🎯 Calcola"</b> per generare tutte le analisi
+          <br><br>
+          <b>⚠️ Importante:</b> I punteggi sono i punti fantacalcio (es: 72.5), NON i punti classifica!
+        </div>
+        
+        <div class="flex">
+          <label>Giornate: <input type="number" id="days" value="10" min="1" max="38" style="width:60px" onchange="updateDays()"></label>
+          <button class="btn btn-secondary" onclick="addTeam()">+ Squadra</button>
+          <label class="btn btn-purple" style="cursor:pointer">📁 Importa CSV<input type="file" accept=".csv" onchange="loadFile(event)" style="display:none"></label>
+        </div>
+        
+        <div class="info-box">
+          <b>📋 Importazione CSV (opzionale):</b>
+          <br>Puoi importare i dati da un file CSV invece di inserirli manualmente.
+          <br><br>
+          <b>Formato 1 - Tabella semplice:</b>
+          <br><code>Nome,G1,G2,G3,...,Vinte,Pareggi</code>
+          <br><code>Squadra A,72,68,75,...,5,2</code>
+          <br><br>
+          <b>Formato 2 - Calendario completo:</b>
+          <br><code>Giornata,HomeTeam,AwayTeam,HomePts,AwayPts,Result</code>
+          <br><code>1,Squadra A,Squadra B,72,68,H</code>
+          <br>(H=Home win, A=Away win, D=Draw)
+        </div>
+        
+        <div id="table-container"></div>
+        
+        <button class="btn btn-primary" style="width:100%; margin-top:15px" onclick="calculate()">🎯 Calcola</button>
+      </div>
+      
+      <div id="tab-results" class="hidden"></div>
+      <div id="tab-stats" class="hidden"></div>
+      <div id="tab-pythagorean" class="hidden"></div>
+      <div id="tab-schedule" class="hidden"></div>
+      <div id="tab-rankings" class="hidden"></div>
+      <div id="tab-whatif" class="hidden"></div>
+      <div id="tab-h2h" class="hidden"></div>
+      <div id="tab-variance" class="hidden"></div>
+    </div>
+  </div>
+
+  <script>
+    let teams = [
+      { name: 'Squadra 1', scores: Array(10).fill(''), wins: '', draws: '' },
+      { name: 'Squadra 2', scores: Array(10).fill(''), wins: '', draws: '' }
+    ];
+    let days = 10;
+    let results = null;
+    let whatIfResults = null;
+    let h2hData = null;
+    let varianceData = null;
+
+    function showTab(tab) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('[id^="tab-"]').forEach(t => t.classList.add('hidden'));
+      event.target.classList.add('active');
+      document.getElementById('tab-' + tab).classList.remove('hidden');
+    }
+
+    function updateDays() {
+      days = Math.max(1, Math.min(38, parseInt(document.getElementById('days').value) || 10));
+      teams = teams.map(t => ({ ...t, scores: Array(days).fill('').map((_, i) => t.scores[i] || '') }));
+      renderTable();
+    }
+
+    function addTeam() {
+      teams.push({ name: `Squadra ${teams.length + 1}`, scores: Array(days).fill(''), wins: '', draws: '' });
+      renderTable();
+    }
+
+    function removeTeam(idx) {
+      if (teams.length > 2) { teams.splice(idx, 1); renderTable(); }
+    }
+
+    function renderTable() {
+      document.getElementById('table-container').innerHTML = `
+        <table>
+          <thead><tr>
+            <th style="text-align:left">Nome</th>
+            ${Array(days).fill(0).map((_, i) => `<th>G${i+1}</th>`).join('')}
+            <th style="background:#d1fae5">V</th>
+            <th style="background:#fef3c7">P</th>
+            <th></th>
+          </tr></thead>
+          <tbody>${teams.map((t, i) => `
+            <tr>
+              <td><input value="${t.name}" onchange="teams[${i}].name=this.value"></td>
+              ${Array(days).fill(0).map((_, j) => `<td><input type="number" value="${t.scores[j]}" onchange="teams[${i}].scores[${j}]=this.value"></td>`).join('')}
+              <td style="background:#d1fae5"><input type="number" value="${t.wins}" onchange="teams[${i}].wins=this.value"></td>
+              <td style="background:#fef3c7"><input type="number" value="${t.draws}" onchange="teams[${i}].draws=this.value"></td>
+              <td><button onclick="removeTeam(${i})" style="border:none;background:none;color:#ef4444;font-size:20px;cursor:pointer">×</button></td>
+            </tr>
+          `).join('')}</tbody>
+        </table>
+      `;
+    }
+
+    function loadFile(e) {
+      const file = e.target.files[0]; if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        try {
+          const lines = ev.target.result.split(/\r?\n/).filter(l => l.trim());
+          const fl = lines[0].toLowerCase();
+          
+          if (fl.includes('hometeam') || fl.includes('awayteam')) {
+            const sep = fl.includes(';') ? ';' : ',';
+            const matches = lines.slice(1).map(l => {
+              const c = l.split(sep).map(x => x.trim());
+              return { day: +c[0], home: c[1], away: c[2], hp: +c[3], ap: +c[4], res: c[5] };
+            }).filter(m => m.day && m.home && m.away);
+            
+            const ts = new Set(); matches.forEach(m => { ts.add(m.home); ts.add(m.away); });
+            const tnames = Array.from(ts), maxD = Math.max(...matches.map(m => m.day));
+            const td = {}; tnames.forEach(n => td[n] = { name: n, scores: Array(maxD).fill(''), wins: 0, draws: 0 });
+            
+            matches.forEach(m => {
+              td[m.home].scores[m.day - 1] = m.hp.toString();
+              td[m.away].scores[m.day - 1] = m.ap.toString();
+              if (m.res === 'H') td[m.home].wins++;
+              else if (m.res === 'A') td[m.away].wins++;
+              else if (m.res === 'D') { td[m.home].draws++; td[m.away].draws++; }
+            });
+            
+            teams = Object.values(td).map(t => ({ name: t.name, scores: t.scores, wins: t.wins+'', draws: t.draws+'' }));
+            days = maxD; document.getElementById('days').value = days;
+            renderTable(); alert(`✅ ${teams.length} squadre, ${days} giornate`);
+            return;
+          }
+          
+          const hasH = fl.includes('nome') || fl.includes('squadra');
+          const dls = hasH ? lines.slice(1) : lines;
+          const sep = dls[0].includes('\t') ? '\t' : dls[0].includes(';') ? ';' : ',';
+          const nd = dls[0].split(sep).length - 3;
+          
+          teams = dls.map(l => {
+            const c = l.split(sep).map(x => x.trim().replace(',', '.'));
+            return c[0] ? { name: c[0], scores: c.slice(1, nd+1), wins: c[nd+1]||'', draws: c[nd+2]||'' } : null;
+          }).filter(t => t);
+          
+          if (teams.length) { days = nd; document.getElementById('days').value = days; renderTable(); alert(`✅ ${teams.length} squadre`); }
+        } catch (err) { alert('Errore: ' + err.message); }
+      };
+      reader.readAsText(file);
+    }
+
+    function calculate() {
+      const teamAvgs = teams.map(t => {
+        const scores = t.scores.map(s => +s).filter(s => !isNaN(s));
+        return scores.length ? scores.reduce((a,b) => a+b, 0) / scores.length : 0;
+      });
+      
+      results = teams.map((t, ti) => {
+        let expW = 0, expD = 0, vd = 0, best = { d: 0, p: 0 }, worst = { d: 0, p: 999 };
+        const scores = [], ranks = [];
+        let ptsFor = 0, ptsAgainst = 0, scheduleStrength = 0, oppCount = 0;
+        
+        for (let m = 0; m < days; m++) {
+          const my = +t.scores[m]; if (isNaN(my)) { scores.push(null); continue; }
+          scores.push(my); ptsFor += my;
+          if (my > best.p) best = { d: m+1, p: my };
+          if (my < worst.p) worst = { d: m+1, p: my };
+          
+          let bt = 0, eq = 0, op = 0, rk = 1, oppPts = 0;
+          teams.forEach((o, oi) => {
+            if (oi === ti) return;
+            const s = +o.scores[m]; if (isNaN(s)) return;
+            op++; oppPts += s;
+            scheduleStrength += teamAvgs[oi]; oppCount++;
+            if (my > s) bt++; else if (my === s) eq++;
+            if (s > my) rk++;
+          });
+          
+          if (op) { expW += bt/op; expD += eq/op; vd++; ptsAgainst += oppPts/op; ranks.push(rk); }
+        }
+        
+        const rw = +t.wins || 0, rd = +t.draws || 0;
+        const tot = scores.reduce((s, v) => s + (v||0), 0);
+        const avg = vd ? tot/vd : 0;
+        const rp = rw*3 + rd, ep = expW*3 + expD, luck = rp - ep;
+        const pythWinPct = ptsFor && ptsAgainst ? Math.pow(ptsFor, 2.37) / (Math.pow(ptsFor, 2.37) + Math.pow(ptsAgainst, 2.37)) : 0;
+        const pythExpPts = pythWinPct * vd * 3;
+        const pythLuck = rp - pythExpPts;
+        const avgOppStrength = oppCount ? scheduleStrength / oppCount : 0;
+        const avgRank = ranks.length ? ranks.reduce((a,b) => a+b, 0) / ranks.length : 0;
+        
+        return {
+          name: t.name, tot: tot.toFixed(1), avg: avg.toFixed(1), expW: expW.toFixed(2), expD: expD.toFixed(2),
+          rw, rd, rp, ep: ep.toFixed(1), luck: luck.toFixed(2), luckN: luck, best, worst,
+          ptsFor: ptsFor.toFixed(1), ptsAgainst: ptsAgainst.toFixed(1),
+          pythWinPct: (pythWinPct*100).toFixed(1), pythExpPts: pythExpPts.toFixed(1),
+          pythLuck: pythLuck.toFixed(2), pythLuckN: pythLuck,
+          avgOppStrength: avgOppStrength.toFixed(1), sosRank: 0,
+          avgRank: avgRank.toFixed(1)
+        };
+      });
+      
+      const sosSorted = [...results].sort((a, b) => +b.avgOppStrength - +a.avgOppStrength);
+      sosSorted.forEach((r, i) => results.find(t => t.name === r.name).sosRank = i + 1);
+      
+      results.sort((a, b) => b.luckN - a.luckN);
+      renderResults(); renderStats(); renderPythagorean(); renderSchedule(); renderRankings(); renderWhatIf(); calculateH2H(); renderH2H(); calculateVariance(); renderVariance();
+      showTab('results');
+      document.querySelectorAll('.tab')[1].classList.add('active');
+    }
+
+    function renderResults() {
+      const lCol = l => +l >= 2 ? 'luck-positive' : +l >= 0.5 ? 'luck-neutral' : +l <= -2 ? 'luck-negative' : +l <= -0.5 ? 'luck-neutral' : '';
+      const lEmo = l => +l >= 3 ? '🍀🍀🍀' : +l >= 2 ? '🍀🍀' : +l >= 1 ? '🍀' : +l <= -3 ? '😭😭😭' : +l <= -2 ? '😭😭' : +l <= -1 ? '😭' : '😐';
+      
+      document.getElementById('tab-results').innerHTML = `
+        <h2>📊 Classifica Fortuna</h2>
+        <table>
+          <thead><tr><th>#</th><th style="text-align:left">Squadra</th><th>Fanta Pts</th><th>Pts Attesi</th><th>Pts Reali</th><th>Fortuna</th></tr></thead>
+          <tbody>${results.map((r, i) => `
+            <tr>
+              <td><b>${i+1}</b></td>
+              <td style="text-align:left">${r.name}</td>
+              <td>${r.tot}</td>
+              <td>${r.ep}</td>
+              <td>${r.rp}</td>
+              <td><span class="${lCol(r.luck)}">${+r.luck > 0 ? '+' : ''}${r.luck} ${lEmo(r.luck)}</span></td>
+            </tr>
+          `).join('')}</tbody>
+        </table>
+        <div class="info-box" style="margin-top:20px">
+          <b>📖 Guida Completa alla Classifica Fortuna</b>
+          <br><br>
+          <b>🎯 Cos'è questa analisi?</b>
+          <br>Questa sezione misura quanto i tuoi risultati reali (vittorie/pareggi/sconfitte) siano stati influenzati dalla fortuna rispetto a ciò che "meritavi" in base ai punteggi ottenuti.
+          <br><br>
+          <b>📊 Come vengono calcolati i Punti Attesi?</b>
+          <br>Per ogni giornata, il tuo punteggio viene confrontato con quello di TUTTE le altre squadre (non solo il tuo avversario reale). 
+          <br>• Se batti 6 squadre su 7 → hai "vinto" l'85.7% delle partite virtuali quella giornata
+          <br>• Sommando tutte le giornate otteniamo le <b>Vittorie Attese</b> e i <b>Pareggi Attesi</b>
+          <br>• <b>Punti Attesi</b> = (Vittorie Attese × 3) + (Pareggi Attesi × 1)
+          <br><br>
+          <b>🍀 Come interpretare la Fortuna?</b>
+          <br>• <b>Fortuna = Punti Reali - Punti Attesi</b>
+          <br>• <span class="luck-positive">+3 o più</span> = Sei stato MOLTO fortunato. Hai vinto partite che "non meritavi" in base ai punteggi.
+          <br>• <span class="luck-neutral">da -1 a +1</span> = Nella norma. I tuoi risultati riflettono la tua forza reale.
+          <br>• <span class="luck-negative">-3 o meno</span> = Sei stato MOLTO sfortunato. Hai perso partite che "meritavi" di vincere.
+          <br><br>
+          <b>💡 Esempio pratico:</b>
+          <br>Se hai fatto 15 punti reali ma i Punti Attesi erano 12, la tua Fortuna è +3. Significa che in media hai affrontato avversari nei loro giorni peggiori, o hai vinto partite tirate che potevano andare diversamente.
+          <br><br>
+          <b>⚠️ Nota importante:</b>
+          <br>Questa metrica NON giudica la bravura nel fare la formazione, ma solo quanto il calendario/accoppiamenti ti hanno favorito o sfavorito.
+        </div>
+      `;
+    }
+
+    function renderStats() {
+      document.getElementById('tab-stats').innerHTML = `
+        <h2>📈 Statistiche</h2>
+        <div class="info-box">
+          <b>📖 Guida alle Statistiche Base</b>
+          <br><br>
+          <b>🎯 Cosa mostra questa sezione?</b>
+          <br>Un riepilogo delle performance di ogni squadra durante la stagione, con focus sui punteggi di fantacalcio (non sui risultati).
+          <br><br>
+          <b>📊 Spiegazione delle colonne:</b>
+          <br>• <b>Media</b>: Media aritmetica dei punteggi di fantacalcio. È l'indicatore principale della "forza" di una squadra.
+          <br>• <b>Pos Media</b>: In che posizione ti saresti classificato mediamente ogni giornata se ci fosse stata una classifica giornaliera. 1° = sempre il migliore, 8° = sempre il peggiore.
+          <br>• <b>Best</b>: Il punteggio più alto ottenuto in una singola giornata (il tuo "ceiling" - tetto massimo).
+          <br>• <b>Worst</b>: Il punteggio più basso ottenuto in una singola giornata (il tuo "floor" - pavimento minimo).
+          <br>• <b>Fortuna</b>: Differenza tra punti reali e punti attesi (vedi tab Fortuna per dettagli).
+          <br><br>
+          <b>💡 Come usare questi dati:</b>
+          <br>• Una squadra con Media alta ma Fortuna negativa è sottovalutata: è forte ma sfortunata.
+          <br>• Una squadra con Pos Media bassa (es. 2°) ma classifica reale peggiore ha avuto un calendario sfavorevole.
+          <br>• Grande differenza tra Best e Worst indica una squadra inconsistente (vedi tab Varianza).
+        </div>
+        <table>
+          <thead><tr><th style="text-align:left">Squadra</th><th>Media</th><th>Pos Media</th><th>Best</th><th>Worst</th><th>Fortuna</th></tr></thead>
+          <tbody>${results.map(r => `
+            <tr>
+              <td style="text-align:left">${r.name}</td>
+              <td>${r.avg}</td>
+              <td>${r.avgRank}°</td>
+              <td style="color:#10b981">${r.best.p}</td>
+              <td style="color:#ef4444">${r.worst.p}</td>
+              <td>${r.luck}</td>
+            </tr>
+          `).join('')}</tbody>
+        </table>
+      `;
+    }
+
+    function renderPythagorean() {
+      const pythSorted = [...results].sort((a, b) => b.pythLuckN - a.pythLuckN);
+      document.getElementById('tab-pythagorean').innerHTML = `
+        <h2>🔬 Expectation Pitagorica</h2>
+        <div class="info-box">
+          <b>📖 Guida alla Formula Pitagorica</b>
+          <br><br>
+          <b>🎯 Cos'è l'Expectation Pitagorica?</b>
+          <br>È una formula statistica inventata da Bill James per il baseball e adattata qui al fantacalcio. Predice quante partite "dovresti" vincere basandosi SOLO sui punti fatti e subiti, ignorando i singoli risultati.
+          <br><br>
+          <b>📐 La Formula:</b>
+          <br><code>Win% = (Punti Fatti)^2.37 / ((Punti Fatti)^2.37 + (Punti Subiti)^2.37)</code>
+          <br>• L'esponente 2.37 è ottimizzato empiricamente per il fantacalcio italiano
+          <br>• Valori più alti dell'esponente danno più peso alle differenze di punteggio
+          <br><br>
+          <b>📊 Spiegazione delle colonne:</b>
+          <br>• <b>Pts Fatti</b>: Somma di tutti i tuoi punteggi di fantacalcio
+          <br>• <b>Pts Subiti</b>: Media dei punteggi degli avversari × numero di partite (approssimazione)
+          <br>• <b>Win %</b>: Percentuale di vittorie attese secondo la formula
+          <br>• <b>Pts Attesi</b>: Win% × Partite Giocate × 3 (punti per vittoria)
+          <br>• <b>Fortuna</b>: Punti Reali - Punti Attesi Pitagorici
+          <br><br>
+          <b>🆚 Differenza con la Fortuna "normale":</b>
+          <br>• La Fortuna normale confronta i tuoi punteggi con TUTTI gli avversari ogni giornata
+          <br>• La Pitagorica guarda solo al TOTALE punti fatti vs subiti nell'intera stagione
+          <br>• Sono due prospettive complementari: se entrambe dicono che sei sfortunato, probabilmente lo sei davvero!
+          <br><br>
+          <b>💡 Esempio:</b>
+          <br>Se fai tanti punti ma li "sprechi" in partite già vinte largamente, e ne fai pochi nelle partite tirate che perdi di misura, la Pitagorica potrebbe mostrarti come sfortunato anche se la fortuna "normale" dice il contrario.
+        </div>
+        <table>
+          <thead><tr><th style="text-align:left">Squadra</th><th>Pts Fatti</th><th>Pts Subiti</th><th>Win %</th><th>Pts Attesi</th><th>Pts Reali</th><th>Fortuna</th></tr></thead>
+          <tbody>${pythSorted.map(r => `
+            <tr>
+              <td style="text-align:left">${r.name}</td>
+              <td>${r.ptsFor}</td>
+              <td>${r.ptsAgainst}</td>
+              <td>${r.pythWinPct}%</td>
+              <td>${r.pythExpPts}</td>
+              <td>${r.rp}</td>
+              <td class="${+r.pythLuck >= 1 ? 'luck-positive' : +r.pythLuck <= -1 ? 'luck-negative' : 'luck-neutral'}">${+r.pythLuck > 0 ? '+' : ''}${r.pythLuck}</td>
+            </tr>
+          `).join('')}</tbody>
+        </table>
+      `;
+    }
+
+    function renderSchedule() {
+      const sosSorted = [...results].sort((a, b) => a.sosRank - b.sosRank);
+      document.getElementById('tab-schedule').innerHTML = `
+        <h2>📅 Difficoltà Calendario</h2>
+        <div class="info-box">
+          <b>📖 Guida alla Difficoltà del Calendario (Strength of Schedule)</b>
+          <br><br>
+          <b>🎯 Cos'è lo Strength of Schedule (SOS)?</b>
+          <br>È una metrica usata negli sport americani per misurare quanto sia stato difficile il calendario di una squadra. Nel fantacalcio, indica se hai affrontato avversari forti o deboli.
+          <br><br>
+          <b>📊 Come viene calcolato?</b>
+          <br>Per ogni partita giocata, prendiamo la MEDIA STAGIONALE dell'avversario (non il punteggio di quella giornata).
+          <br>La Media Avversari è la media di tutte queste medie.
+          <br><br>
+          <b>🏷️ Spiegazione delle colonne:</b>
+          <br>• <b>Rank</b>: Classifica per difficoltà calendario (1° = più difficile)
+          <br>• <b>Media Squadra</b>: La tua media punteggi stagionale
+          <br>• <b>Media Avversari</b>: Media delle medie stagionali dei tuoi avversari
+          <br>• <b>Difficoltà</b>: Confronto tra la tua media e quella degli avversari
+          <br><br>
+          <b>🎨 Interpretazione della Difficoltà:</b>
+          <br>• 🔴 <b>Molto Duro</b>: Media avversari > tua media + 2 punti. Hai affrontato squadre nettamente più forti.
+          <br>• 🟠 <b>Duro</b>: Media avversari > tua media. Calendario leggermente sfavorevole.
+          <br>• 🟡 <b>Normale</b>: Media avversari ≈ tua media. Calendario equilibrato.
+          <br>• 🟢 <b>Facile</b>: Media avversari < tua media - 2 punti. Hai affrontato squadre più deboli.
+          <br><br>
+          <b>💡 Perché è importante?</b>
+          <br>Se hai un calendario "Molto Duro" ma sei comunque in alta classifica, sei probabilmente più forte di quanto sembri.
+          <br>Se hai un calendario "Facile" ma sei in bassa classifica, potresti avere problemi quando affronterai le big.
+          <br><br>
+          <b>⚠️ Limitazione:</b>
+          <br>Questo calcolo assume che ogni squadra giochi contro le altre lo stesso numero di volte. In leghe con calendari asimmetrici, i risultati potrebbero essere meno accurati.
+        </div>
+        <table>
+          <thead><tr><th>Rank</th><th style="text-align:left">Squadra</th><th>Media Squadra</th><th>Media Avversari</th><th>Difficoltà</th></tr></thead>
+          <tbody>${sosSorted.map(r => {
+            const diff = +r.avgOppStrength - +r.avg;
+            const label = diff > 2 ? '🔴 Molto Duro' : diff > 0 ? '🟠 Duro' : diff < -2 ? '🟢 Facile' : '🟡 Normale';
+            return `
+              <tr>
+                <td><b>${r.sosRank}</b></td>
+                <td style="text-align:left">${r.name}</td>
+                <td>${r.avg}</td>
+                <td><b>${r.avgOppStrength}</b></td>
+                <td>${label}</td>
+              </tr>
+            `;
+          }).join('')}</tbody>
+        </table>
+      `;
+    }
+
+    function renderRankings() {
+      document.getElementById('tab-rankings').innerHTML = `
+        <h2>🏆 Classifiche</h2>
+        <div class="info-box">
+          <b>📖 Guida alle Classifiche Speciali</b>
+          <br><br>
+          <b>🎯 Cosa mostra questa sezione?</b>
+          <br>Un riepilogo visivo dei "vincitori" e "perdenti" in diverse categorie, per avere una visione d'insieme rapida.
+          <br><br>
+          <b>🏷️ Le quattro classifiche:</b>
+          <br>• <b>🍀 Fortunati</b>: Chi ha ottenuto più punti reali rispetto a quelli attesi. Hanno beneficiato di accoppiamenti favorevoli.
+          <br>• <b>😭 Sfortunati</b>: Chi ha ottenuto meno punti reali rispetto a quelli attesi. Meritavano di più in base ai punteggi.
+          <br>• <b>📊 Più Punti</b>: Chi ha totalizzato più punti fantacalcio in assoluto. Indica la "forza bruta" della squadra.
+          <br>• <b>🔬 Pitagorica</b>: Chi è risultato più fortunato secondo la formula pitagorica (basata su punti fatti vs subiti).
+          <br><br>
+          <b>💡 Come usare queste info:</b>
+          <br>Se una squadra appare sia tra i Fortunati che tra i migliori per Pitagorica, la sua fortuna è confermata da entrambi i metodi.
+          <br>Se appare tra i Più Punti ma anche tra gli Sfortunati, è una squadra forte che sta sottoperformando per colpa del calendario.
+        </div>
+        <div class="grid">
+          <div class="card"><h3 style="color:#10b981">🍀 Fortunati</h3>
+            ${results.slice(0,3).map((r,i) => `<div style="padding:8px 0;border-bottom:1px solid #ddd">${['🥇','🥈','🥉'][i]} ${r.name} <b style="color:#10b981">+${r.luck}</b></div>`).join('')}
+          </div>
+          <div class="card"><h3 style="color:#ef4444">😭 Sfortunati</h3>
+            ${results.slice(-3).reverse().map((r,i) => `<div style="padding:8px 0;border-bottom:1px solid #ddd">${['🥇','🥈','🥉'][i]} ${r.name} <b style="color:#ef4444">${r.luck}</b></div>`).join('')}
+          </div>
+          <div class="card"><h3 style="color:#3b82f6">📊 Più Punti</h3>
+            ${[...results].sort((a,b) => +b.tot - +a.tot).slice(0,3).map((r,i) => `<div style="padding:8px 0;border-bottom:1px solid #ddd">${['🥇','🥈','🥉'][i]} ${r.name} <b>${r.tot}</b></div>`).join('')}
+          </div>
+          <div class="card"><h3 style="color:#8b5cf6">🔬 Pitagorica</h3>
+            ${[...results].sort((a,b) => b.pythLuckN - a.pythLuckN).slice(0,3).map((r,i) => `<div style="padding:8px 0;border-bottom:1px solid #ddd">${['🥇','🥈','🥉'][i]} ${r.name} <b>+${r.pythLuck}</b></div>`).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderWhatIf() {
+      document.getElementById('tab-whatif').innerHTML = `
+        <h2>🎰 Simulazione What-If (Monte Carlo)</h2>
+        
+        <div class="whatif-controls">
+          <div class="flex" style="margin-bottom:0">
+            <label>Numero simulazioni: 
+              <input type="number" id="simCount" value="10000" min="100" max="100000" step="1000">
+            </label>
+            <button class="btn btn-orange" id="runSimBtn" onclick="runSimulation()">🚀 Avvia Simulazione</button>
+          </div>
+        </div>
+        
+        <div class="info-box">
+          <b>📖 Guida Completa alla Simulazione Monte Carlo</b>
+          <br><br>
+          <b>🎯 Cos'è una Simulazione Monte Carlo?</b>
+          <br>È una tecnica statistica che usa la casualità per risolvere problemi. Prende il nome dal famoso casinò di Monaco, perché si basa sul "lancio dei dadi" ripetuto migliaia di volte.
+          <br><br>
+          <b>🔄 Come funziona qui?</b>
+          <br>1. Prendiamo i punteggi REALI di ogni squadra in ogni giornata (questi non cambiano)
+          <br>2. Per ogni simulazione, rimescoliamo CASUALMENTE chi gioca contro chi in ogni giornata
+          <br>3. Calcoliamo vittorie/pareggi/sconfitte con i nuovi accoppiamenti
+          <br>4. Ripetiamo migliaia di volte e facciamo la media
+          <br><br>
+          <b>📊 Cosa rivelano i risultati?</b>
+          <br>• <b>Pts Media Sim</b>: Quanti punti avresti fatto IN MEDIA con calendari casuali
+          <br>• <b>Luck Index (σ)</b>: Quante "deviazioni standard" sei sopra/sotto la media. ±1σ = normale, ±2σ = molto fortunato/sfortunato
+          <br>• <b>Percentile</b>: In che percentuale di simulazioni avresti fatto PEGGIO del tuo risultato reale
+          <br>• <b>Distribuzione Posizioni</b>: In quante simulazioni saresti arrivato 1°, 2°, 3°, ecc.
+          <br><br>
+          <b>🎯 Interpretazione del Luck Index:</b>
+          <br>• <b>+2σ o più</b>: Estremamente fortunato (succede solo nel 2.5% dei casi)
+          <br>• <b>+1σ a +2σ</b>: Abbastanza fortunato (16% dei casi)
+          <br>• <b>-1σ a +1σ</b>: Nella norma (68% dei casi)
+          <br>• <b>-1σ a -2σ</b>: Abbastanza sfortunato (16% dei casi)
+          <br>• <b>-2σ o meno</b>: Estremamente sfortunato (2.5% dei casi)
+          <br><br>
+          <b>💡 Esempio pratico:</b>
+          <br>Se hai 18 punti reali, la media simulata è 15, e il Luck Index è +1.5σ:
+          <br>→ Sei stato fortunato! Solo nel ~7% delle simulazioni avresti fatto così bene.
+          <br><br>
+          <b>⚙️ Quante simulazioni scegliere?</b>
+          <br>• <b>1.000</b>: Veloce, risultati approssimativi
+          <br>• <b>10.000</b>: Buon compromesso (consigliato)
+          <br>• <b>50.000+</b>: Molto preciso, ma più lento
+        </div>
+        
+        <div id="simulation-progress" class="hidden">
+          <div class="progress-container">
+            <div class="progress-bar" id="progressBar" style="width: 0%">0%</div>
+          </div>
+        </div>
+        
+        <div id="simulation-results"></div>
+      `;
+    }
+
+    // Fisher-Yates shuffle
+    function shuffle(array) {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    // Generate random matchups for a matchday
+    function generateMatchups(teamIndices) {
+      const shuffled = shuffle(teamIndices);
+      const matchups = [];
+      for (let i = 0; i < shuffled.length; i += 2) {
+        if (i + 1 < shuffled.length) {
+          matchups.push([shuffled[i], shuffled[i + 1]]);
+        }
+      }
+      // Handle odd number of teams (bye week)
+      if (shuffled.length % 2 === 1) {
+        matchups.push([shuffled[shuffled.length - 1], null]); // null = bye
+      }
+      return matchups;
+    }
+
+    // Run a single simulation
+    function simulateSeason(teamsData) {
+      const n = teamsData.length;
+      const teamIndices = Array.from({ length: n }, (_, i) => i);
+      const points = Array(n).fill(0);
+      const wins = Array(n).fill(0);
+      const draws = Array(n).fill(0);
+      const losses = Array(n).fill(0);
+      
+      for (let day = 0; day < days; day++) {
+        // Get valid scores for this day
+        const validTeams = teamIndices.filter(i => {
+          const score = +teamsData[i].scores[day];
+          return !isNaN(score);
+        });
+        
+        if (validTeams.length < 2) continue;
+        
+        const matchups = generateMatchups(validTeams);
+        
+        for (const [homeIdx, awayIdx] of matchups) {
+          if (awayIdx === null) continue; // bye week
+          
+          const homeScore = +teamsData[homeIdx].scores[day];
+          const awayScore = +teamsData[awayIdx].scores[day];
+          
+          if (homeScore > awayScore) {
+            points[homeIdx] += 3;
+            wins[homeIdx]++;
+            losses[awayIdx]++;
+          } else if (awayScore > homeScore) {
+            points[awayIdx] += 3;
+            wins[awayIdx]++;
+            losses[homeIdx]++;
+          } else {
+            points[homeIdx] += 1;
+            points[awayIdx] += 1;
+            draws[homeIdx]++;
+            draws[awayIdx]++;
+          }
+        }
+      }
+      
+      // Calculate final standings
+      const standings = teamIndices.map(i => ({
+        index: i,
+        points: points[i],
+        wins: wins[i],
+        draws: draws[i],
+        losses: losses[i]
+      })).sort((a, b) => b.points - a.points || b.wins - a.wins);
+      
+      // Assign positions
+      const positions = Array(n).fill(0);
+      standings.forEach((team, pos) => {
+        positions[team.index] = pos + 1;
+      });
+      
+      return { points, wins, draws, losses, positions };
+    }
+
+    async function runSimulation() {
+      if (!results || results.length < 2) {
+        alert('⚠️ Prima calcola i risultati nella tab "Dati"!');
+        return;
+      }
+      
+      const simCount = Math.max(100, Math.min(100000, parseInt(document.getElementById('simCount').value) || 10000));
+      const btn = document.getElementById('runSimBtn');
+      const progressDiv = document.getElementById('simulation-progress');
+      const progressBar = document.getElementById('progressBar');
+      const resultsDiv = document.getElementById('simulation-results');
+      
+      btn.disabled = true;
+      btn.textContent = '⏳ Simulazione in corso...';
+      progressDiv.classList.remove('hidden');
+      resultsDiv.innerHTML = '';
+      
+      const n = teams.length;
+      
+      // Initialize accumulators
+      const totalPoints = Array(n).fill(0);
+      const totalWins = Array(n).fill(0);
+      const totalDraws = Array(n).fill(0);
+      const totalLosses = Array(n).fill(0);
+      const positionCounts = Array(n).fill(null).map(() => Array(n).fill(0));
+      const minPoints = Array(n).fill(Infinity);
+      const maxPoints = Array(n).fill(-Infinity);
+      const allPoints = Array(n).fill(null).map(() => []);
+      
+      const batchSize = 500;
+      let completed = 0;
+      
+      // Run simulation in batches to avoid blocking UI
+      const runBatch = () => {
+        return new Promise(resolve => {
+          setTimeout(() => {
+            const end = Math.min(completed + batchSize, simCount);
+            
+            for (let sim = completed; sim < end; sim++) {
+              const result = simulateSeason(teams);
+              
+              for (let i = 0; i < n; i++) {
+                totalPoints[i] += result.points[i];
+                totalWins[i] += result.wins[i];
+                totalDraws[i] += result.draws[i];
+                totalLosses[i] += result.losses[i];
+                positionCounts[i][result.positions[i] - 1]++;
+                minPoints[i] = Math.min(minPoints[i], result.points[i]);
+                maxPoints[i] = Math.max(maxPoints[i], result.points[i]);
+                allPoints[i].push(result.points[i]);
+              }
+            }
+            
+            completed = end;
+            const progress = Math.round((completed / simCount) * 100);
+            progressBar.style.width = progress + '%';
+            progressBar.textContent = progress + '%';
+            
+            resolve();
+          }, 0);
+        });
+      };
+      
+      while (completed < simCount) {
+        await runBatch();
+      }
+      
+      // Calculate statistics
+      whatIfResults = teams.map((t, i) => {
+        const avgPts = totalPoints[i] / simCount;
+        const avgWins = totalWins[i] / simCount;
+        const avgDraws = totalDraws[i] / simCount;
+        const avgLosses = totalLosses[i] / simCount;
+        
+        // Calculate standard deviation
+        const variance = allPoints[i].reduce((sum, p) => sum + Math.pow(p - avgPts, 2), 0) / simCount;
+        const stdDev = Math.sqrt(variance);
+        
+        // Calculate percentiles
+        const sorted = [...allPoints[i]].sort((a, b) => a - b);
+        const p5 = sorted[Math.floor(simCount * 0.05)];
+        const p25 = sorted[Math.floor(simCount * 0.25)];
+        const p50 = sorted[Math.floor(simCount * 0.50)];
+        const p75 = sorted[Math.floor(simCount * 0.75)];
+        const p95 = sorted[Math.floor(simCount * 0.95)];
+        
+        // Most likely position
+        const maxPosCount = Math.max(...positionCounts[i]);
+        const mostLikelyPos = positionCounts[i].indexOf(maxPosCount) + 1;
+        
+        // Average position
+        let avgPos = 0;
+        positionCounts[i].forEach((count, pos) => {
+          avgPos += (pos + 1) * count;
+        });
+        avgPos /= simCount;
+        
+        // Find real result
+        const realResult = results.find(r => r.name === t.name);
+        const realPts = realResult ? realResult.rp : 0;
+        
+        // Percentile of real result
+        const realPercentile = (sorted.filter(p => p < realPts).length / simCount) * 100;
+        
+        return {
+          name: t.name,
+          avgPts: avgPts.toFixed(1),
+          avgWins: avgWins.toFixed(1),
+          avgDraws: avgDraws.toFixed(1),
+          avgLosses: avgLosses.toFixed(1),
+          stdDev: stdDev.toFixed(1),
+          minPts: minPoints[i],
+          maxPts: maxPoints[i],
+          p5, p25, p50, p75, p95,
+          positionCounts: positionCounts[i],
+          mostLikelyPos,
+          avgPos: avgPos.toFixed(1),
+          realPts,
+          realPercentile: realPercentile.toFixed(0),
+          luckIndex: ((realPts - avgPts) / (stdDev || 1)).toFixed(2)
+        };
+      });
+      
+      // Sort by average points
+      whatIfResults.sort((a, b) => +b.avgPts - +a.avgPts);
+      
+      renderWhatIfResults(simCount);
+      
+      btn.disabled = false;
+      btn.textContent = '🚀 Avvia Simulazione';
+      progressDiv.classList.add('hidden');
+    }
+
+    function renderWhatIfResults(simCount) {
+      const n = teams.length;
+      const posColors = [
+        '#fbbf24', '#9ca3af', '#b45309', '#3b82f6', '#10b981', 
+        '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16', '#f97316'
+      ];
+      
+      // Generate more colors if needed
+      while (posColors.length < n) {
+        const hue = (posColors.length * 137.5) % 360;
+        posColors.push(`hsl(${hue}, 60%, 50%)`);
+      }
+      
+      const maxRealPts = Math.max(...whatIfResults.map(r => r.realPts));
+      const maxAvgPts = Math.max(...whatIfResults.map(r => +r.avgPts));
+      
+      // Find real standings sorted by real points
+      const realStandings = [...whatIfResults].sort((a, b) => b.realPts - a.realPts);
+      
+      document.getElementById('simulation-results').innerHTML = `
+        <div class="simulation-stats">
+          <div class="stat-card">
+            <div class="value">${simCount.toLocaleString()}</div>
+            <div class="label">Simulazioni completate</div>
+          </div>
+          <div class="stat-card">
+            <div class="value">${days}</div>
+            <div class="label">Giornate simulate</div>
+          </div>
+          <div class="stat-card">
+            <div class="value">${n}</div>
+            <div class="label">Squadre</div>
+          </div>
+          <div class="stat-card">
+            <div class="value">${(n * (n-1) / 2 * days).toLocaleString()}</div>
+            <div class="label">Partite per stagione</div>
+          </div>
+        </div>
+        
+        <h3 style="margin-top: 25px; margin-bottom: 15px;">📊 Confronto Punti Reali vs Simulati</h3>
+        <table>
+          <thead>
+            <tr>
+              <th style="text-align:left">Squadra</th>
+              <th>Pts Reali</th>
+              <th>Media Sim</th>
+              <th>Diff</th>
+              <th>Luck Index</th>
+              <th>Range (5%-95%)</th>
+              <th>Percentile</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${whatIfResults.map(r => {
+              const diff = (r.realPts - +r.avgPts).toFixed(1);
+              const diffNum = +diff;
+              const arrow = diffNum > 1 ? '↑' : diffNum < -1 ? '↓' : '→';
+              const arrowClass = diffNum > 1 ? 'up' : diffNum < -1 ? 'down' : 'same';
+              const luckNum = +r.luckIndex;
+              const luckClass = luckNum > 1 ? 'luck-positive' : luckNum < -1 ? 'luck-negative' : 'luck-neutral';
+              const percentileLabel = +r.realPercentile >= 90 ? '🍀 Top 10%' : 
+                                      +r.realPercentile >= 75 ? '😊 Sopra media' :
+                                      +r.realPercentile <= 10 ? '😭 Bottom 10%' :
+                                      +r.realPercentile <= 25 ? '😕 Sotto media' : '😐 Nella norma';
+              return `
+                <tr>
+                  <td style="text-align:left"><b>${r.name}</b></td>
+                  <td><b>${r.realPts}</b></td>
+                  <td>${r.avgPts}</td>
+                  <td>
+                    <span class="comparison-arrow ${arrowClass}">${arrow}</span>
+                    ${diffNum > 0 ? '+' : ''}${diff}
+                  </td>
+                  <td><span class="${luckClass}">${luckNum > 0 ? '+' : ''}${r.luckIndex}σ</span></td>
+                  <td>${r.p5} - ${r.p95}</td>
+                  <td>${r.realPercentile}° ${percentileLabel}</td>
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
+        
+        <div class="info-box" style="margin-top: 15px;">
+          <b>🎯 Luck Index:</b> Misura quante deviazioni standard (σ) il tuo risultato reale è sopra o sotto la media simulata.
+          <br>• <b>+2σ o più</b> = Estremamente fortunato (top 2.5% delle simulazioni)
+          <br>• <b>+1σ a +2σ</b> = Abbastanza fortunato
+          <br>• <b>-1σ a +1σ</b> = Nella norma
+          <br>• <b>-1σ a -2σ</b> = Abbastanza sfortunato
+          <br>• <b>-2σ o meno</b> = Estremamente sfortunato (bottom 2.5%)
+        </div>
+        
+        <h3 style="margin-top: 25px; margin-bottom: 15px;">🏅 Distribuzione Posizioni</h3>
+        <div class="whatif-legend">
+          ${Array(Math.min(n, 10)).fill(0).map((_, i) => `
+            <div class="whatif-legend-item">
+              <div class="whatif-legend-color" style="background: ${posColors[i]}"></div>
+              <span>${i+1}° posto</span>
+            </div>
+          `).join('')}
+          ${n > 10 ? '<span>...</span>' : ''}
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th style="text-align:left">Squadra</th>
+              <th>Pos Media</th>
+              <th>Pos Reale</th>
+              <th style="width: 40%">Distribuzione Posizioni</th>
+              <th>% 1° posto</th>
+              <th>% Top 3</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${whatIfResults.map(r => {
+              const realPos = realStandings.findIndex(s => s.name === r.name) + 1;
+              const posChange = +r.avgPos - realPos;
+              const changeArrow = posChange > 0.5 ? '↓' : posChange < -0.5 ? '↑' : '→';
+              const changeClass = posChange > 0.5 ? 'down' : posChange < -0.5 ? 'up' : 'same';
+              const firstPct = ((r.positionCounts[0] / simCount) * 100).toFixed(1);
+              const top3Pct = (((r.positionCounts[0] + r.positionCounts[1] + r.positionCounts[2]) / simCount) * 100).toFixed(1);
+              
+              return `
+                <tr>
+                  <td style="text-align:left"><b>${r.name}</b></td>
+                  <td>${r.avgPos}°</td>
+                  <td>
+                    ${realPos}°
+                    <span class="comparison-arrow ${changeClass}">${changeArrow}</span>
+                  </td>
+                  <td>
+                    <div class="position-bar">
+                      ${r.positionCounts.map((count, pos) => {
+                        const pct = (count / simCount) * 100;
+                        if (pct < 2) return '';
+                        return `<div class="position-segment" style="width: ${pct}%; background: ${posColors[pos]}" title="${pos+1}°: ${pct.toFixed(1)}%">${pct >= 8 ? Math.round(pct) + '%' : ''}</div>`;
+                      }).join('')}
+                    </div>
+                  </td>
+                  <td style="font-weight: ${+firstPct > 10 ? 'bold' : 'normal'}; color: ${+firstPct > 20 ? '#10b981' : 'inherit'}">${firstPct}%</td>
+                  <td style="font-weight: ${+top3Pct > 30 ? 'bold' : 'normal'}">${top3Pct}%</td>
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
+        
+        <h3 style="margin-top: 25px; margin-bottom: 15px;">📈 Statistiche Dettagliate per Squadra</h3>
+        <table>
+          <thead>
+            <tr>
+              <th style="text-align:left">Squadra</th>
+              <th>V Media</th>
+              <th>P Media</th>
+              <th>S Media</th>
+              <th>Pts Min</th>
+              <th>Pts Max</th>
+              <th>Mediana</th>
+              <th>Std Dev</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${whatIfResults.map(r => `
+              <tr>
+                <td style="text-align:left"><b>${r.name}</b></td>
+                <td style="color: #10b981">${r.avgWins}</td>
+                <td style="color: #f59e0b">${r.avgDraws}</td>
+                <td style="color: #ef4444">${r.avgLosses}</td>
+                <td>${r.minPts}</td>
+                <td>${r.maxPts}</td>
+                <td>${r.p50}</td>
+                <td>±${r.stdDev}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+        
+        <div class="grid" style="margin-top: 25px;">
+          <div class="card">
+            <h3 style="color: #10b981">🍀 Più Fortunati (Luck Index)</h3>
+            ${[...whatIfResults].sort((a, b) => +b.luckIndex - +a.luckIndex).slice(0, 3).map((r, i) => `
+              <div style="padding: 8px 0; border-bottom: 1px solid #ddd">
+                ${['🥇', '🥈', '🥉'][i]} ${r.name} 
+                <b style="color: #10b981">+${r.luckIndex}σ</b>
+                <span style="color: #666; font-size: 11px">(${r.realPts} vs ${r.avgPts} attesi)</span>
+              </div>
+            `).join('')}
+          </div>
+          <div class="card">
+            <h3 style="color: #ef4444">😭 Più Sfortunati (Luck Index)</h3>
+            ${[...whatIfResults].sort((a, b) => +a.luckIndex - +b.luckIndex).slice(0, 3).map((r, i) => `
+              <div style="padding: 8px 0; border-bottom: 1px solid #ddd">
+                ${['🥇', '🥈', '🥉'][i]} ${r.name} 
+                <b style="color: #ef4444">${r.luckIndex}σ</b>
+                <span style="color: #666; font-size: 11px">(${r.realPts} vs ${r.avgPts} attesi)</span>
+              </div>
+            `).join('')}
+          </div>
+          <div class="card">
+            <h3 style="color: #3b82f6">🎯 Più Consistenti (bassa varianza)</h3>
+            ${[...whatIfResults].sort((a, b) => +a.stdDev - +b.stdDev).slice(0, 3).map((r, i) => `
+              <div style="padding: 8px 0; border-bottom: 1px solid #ddd">
+                ${['🥇', '🥈', '🥉'][i]} ${r.name} 
+                <b style="color: #3b82f6">±${r.stdDev}</b>
+                <span style="color: #666; font-size: 11px">(range: ${r.p5}-${r.p95})</span>
+              </div>
+            `).join('')}
+          </div>
+          <div class="card">
+            <h3 style="color: #8b5cf6">🎲 Più Variabili (alta varianza)</h3>
+            ${[...whatIfResults].sort((a, b) => +b.stdDev - +a.stdDev).slice(0, 3).map((r, i) => `
+              <div style="padding: 8px 0; border-bottom: 1px solid #ddd">
+                ${['🥇', '🥈', '🥉'][i]} ${r.name} 
+                <b style="color: #8b5cf6">±${r.stdDev}</b>
+                <span style="color: #666; font-size: 11px">(range: ${r.p5}-${r.p95})</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function calculateH2H() {
+      const n = teams.length;
+      
+      // Initialize H2H matrix
+      h2hData = {
+        matrix: Array(n).fill(null).map(() => Array(n).fill(null).map(() => ({
+          wins: 0, draws: 0, losses: 0, matches: 0,
+          ptsFor: 0, ptsAgainst: 0,
+          matchDetails: []
+        }))),
+        teamStats: teams.map((t, i) => ({
+          name: t.name,
+          index: i,
+          totalH2HWins: 0,
+          totalH2HDraws: 0,
+          totalH2HLosses: 0,
+          kryptonite: null,
+          victims: [],
+          rivals: []
+        }))
+      };
+      
+      // Simulate all possible head-to-head matchups based on scores
+      for (let day = 0; day < days; day++) {
+        for (let i = 0; i < n; i++) {
+          const scoreI = +teams[i].scores[day];
+          if (isNaN(scoreI)) continue;
+          
+          for (let j = 0; j < n; j++) {
+            if (i === j) continue;
+            
+            const scoreJ = +teams[j].scores[day];
+            if (isNaN(scoreJ)) continue;
+            
+            const h2h = h2hData.matrix[i][j];
+            h2h.matches++;
+            h2h.ptsFor += scoreI;
+            h2h.ptsAgainst += scoreJ;
+            
+            const matchDetail = { day: day + 1, myScore: scoreI, oppScore: scoreJ };
+            
+            if (scoreI > scoreJ) {
+              h2h.wins++;
+              matchDetail.result = 'W';
+            } else if (scoreI < scoreJ) {
+              h2h.losses++;
+              matchDetail.result = 'L';
+            } else {
+              h2h.draws++;
+              matchDetail.result = 'D';
+            }
+            
+            h2h.matchDetails.push(matchDetail);
+          }
+        }
+      }
+      
+      // Calculate team-level H2H stats
+      for (let i = 0; i < n; i++) {
+        const stats = h2hData.teamStats[i];
+        let worstRecord = { ratio: Infinity, opponent: null };
+        let bestRecords = [];
+        
+        for (let j = 0; j < n; j++) {
+          if (i === j) continue;
+          
+          const h2h = h2hData.matrix[i][j];
+          if (h2h.matches === 0) continue;
+          
+          stats.totalH2HWins += h2h.wins;
+          stats.totalH2HDraws += h2h.draws;
+          stats.totalH2HLosses += h2h.losses;
+          
+          const winRatio = h2h.wins / h2h.matches;
+          const lossRatio = h2h.losses / h2h.matches;
+          
+          // Track rival data
+          stats.rivals.push({
+            opponent: teams[j].name,
+            opponentIndex: j,
+            wins: h2h.wins,
+            draws: h2h.draws,
+            losses: h2h.losses,
+            matches: h2h.matches,
+            winRate: (winRatio * 100).toFixed(0),
+            dominance: ((h2h.wins - h2h.losses) / h2h.matches).toFixed(2)
+          });
+          
+          // Find kryptonite (worst matchup - highest loss rate with at least 2 matches)
+          if (h2h.matches >= 2 && lossRatio > 0.5) {
+            const ratio = h2h.wins / (h2h.losses || 0.5);
+            if (ratio < worstRecord.ratio) {
+              worstRecord = {
+                ratio,
+                opponent: teams[j].name,
+                opponentIndex: j,
+                wins: h2h.wins,
+                draws: h2h.draws,
+                losses: h2h.losses,
+                matches: h2h.matches,
+                lossRate: (lossRatio * 100).toFixed(0)
+              };
+            }
+          }
+          
+          // Find victims (best matchups - highest win rate with at least 2 matches)
+          if (h2h.matches >= 2 && winRatio > 0.5) {
+            bestRecords.push({
+              opponent: teams[j].name,
+              opponentIndex: j,
+              wins: h2h.wins,
+              draws: h2h.draws,
+              losses: h2h.losses,
+              matches: h2h.matches,
+              winRate: (winRatio * 100).toFixed(0)
+            });
+          }
+        }
+        
+        stats.kryptonite = worstRecord.opponent ? worstRecord : null;
+        stats.victims = bestRecords.sort((a, b) => +b.winRate - +a.winRate).slice(0, 3);
+        stats.rivals.sort((a, b) => +b.dominance - +a.dominance);
+      }
+    }
+
+    function renderH2H() {
+      if (!h2hData) {
+        document.getElementById('tab-h2h').innerHTML = `
+          <h2>⚔️ Scontri Virtuali</h2>
+          <div class="info-box">
+            <b>⚠️ Calcola prima i risultati nella tab "Dati"!</b>
+          </div>
+        `;
+        return;
+      }
+      
+      const n = teams.length;
+      
+      // Build matrix HTML
+      let matrixHTML = `
+        <div class="h2h-matrix">
+          <table>
+            <thead>
+              <tr>
+                <th></th>
+                ${teams.map(t => `<th><div class="team-header">${t.name}</div></th>`).join('')}
+                <th style="background:#e0f2fe">Totale</th>
+              </tr>
+            </thead>
+            <tbody>
+      `;
+      
+      for (let i = 0; i < n; i++) {
+        const stats = h2hData.teamStats[i];
+        const totalMatches = stats.totalH2HWins + stats.totalH2HDraws + stats.totalH2HLosses;
+        const totalWinRate = totalMatches ? ((stats.totalH2HWins / totalMatches) * 100).toFixed(0) : 0;
+        
+        matrixHTML += `<tr><td style="text-align:left; font-weight:bold; white-space:nowrap">${teams[i].name}</td>`;
+        
+        for (let j = 0; j < n; j++) {
+          if (i === j) {
+            matrixHTML += `<td class="h2h-self">-</td>`;
+          } else {
+            const h2h = h2hData.matrix[i][j];
+            if (h2h.matches === 0) {
+              matrixHTML += `<td class="h2h-no-match">N/A</td>`;
+            } else {
+              const cellClass = h2h.wins > h2h.losses ? 'h2h-win' : 
+                               h2h.losses > h2h.wins ? 'h2h-lose' : 'h2h-draw';
+              const winRate = ((h2h.wins / h2h.matches) * 100).toFixed(0);
+              matrixHTML += `
+                <td class="h2h-cell ${cellClass}" title="${teams[i].name} vs ${teams[j].name}: ${h2h.wins}V-${h2h.draws}P-${h2h.losses}S">
+                  <div class="record">${h2h.wins}-${h2h.draws}-${h2h.losses}</div>
+                  <div class="details">${winRate}%</div>
+                </td>
+              `;
+            }
+          }
+        }
+        
+        // Total column
+        matrixHTML += `
+          <td style="background:#e0f2fe">
+            <div class="record">${stats.totalH2HWins}-${stats.totalH2HDraws}-${stats.totalH2HLosses}</div>
+            <div class="details">${totalWinRate}%</div>
+          </td>
+        </tr>`;
+      }
+      
+      matrixHTML += `</tbody></table></div>`;
+      
+      // Build kryptonite and victims section
+      const kryptoniteTeams = h2hData.teamStats.filter(s => s.kryptonite).sort((a, b) => +a.kryptonite.ratio - +b.kryptonite.ratio);
+      const victimHunters = h2hData.teamStats.filter(s => s.victims.length > 0).sort((a, b) => {
+        const aMax = Math.max(...a.victims.map(v => +v.winRate));
+        const bMax = Math.max(...b.victims.map(v => +v.winRate));
+        return bMax - aMax;
+      });
+      
+      document.getElementById('tab-h2h').innerHTML = `
+        <h2>⚔️ Scontri Virtuali</h2>
+        
+        <div class="info-box">
+          <b>📖 Guida Completa agli Scontri Virtuali</b>
+          <br><br>
+          <b>🎯 Cosa sono gli Scontri Virtuali?</b>
+          <br>È un'analisi che simula cosa sarebbe successo se ogni squadra avesse giocato contro <b>TUTTE le altre</b> in ogni giornata, non solo contro l'avversario reale del calendario.
+          <br><br>
+          <b>📊 Come viene calcolato?</b>
+          <br>Per ogni giornata, il tuo punteggio viene confrontato con quello di OGNI altra squadra:
+          <br>• Se il tuo punteggio è maggiore → Vittoria virtuale
+          <br>• Se è uguale → Pareggio virtuale  
+          <br>• Se è minore → Sconfitta virtuale
+          <br><br>
+          <b>🔢 Esempio numerico:</b>
+          <br>Con 8 squadre e 11 giornate: 11 giornate × 7 avversari = <b>77 scontri virtuali</b> per squadra.
+          <br>Questo è molto più di 11 partite reali, quindi offre un campione statistico più affidabile.
+          <br><br>
+          <b>🎨 Come leggere la matrice:</b>
+          <br>• 🟢 <b>Verde</b>: Hai un record positivo contro quella squadra (più vittorie che sconfitte)
+          <br>• 🔴 <b>Rosso</b>: Hai un record negativo (più sconfitte che vittorie)
+          <br>• 🟡 <b>Giallo</b>: Record in equilibrio
+          <br>• Il formato è <b>V-P-S</b> (Vittorie-Pareggi-Sconfitte)
+          <br><br>
+          <b>💀 Cos'è la Kryptonite?</b>
+          <br>La squadra che ti "batte sempre" negli scontri virtuali (>50% di sconfitte con almeno 2 partite).
+          <br>Come la kryptonite per Superman, è il tuo punto debole!
+          <br><br>
+          <b>🎯 Cosa sono le Victims?</b>
+          <br>Le squadre che "batti sempre" negli scontri virtuali (>50% di vittorie con almeno 2 partite).
+          <br>Sono le tue "prede" preferite!
+          <br><br>
+          <b>💡 Perché è utile?</b>
+          <br>• Mostra la tua "forza relativa" indipendentemente dal calendario reale
+          <br>• Identifica matchup favorevoli/sfavorevoli per il fantamercato
+          <br>• Rivela se alcuni avversari hanno uno "stile" che ti mette in difficoltà
+        </div>
+        
+        ${matrixHTML}
+        
+        <h3 style="margin-top: 25px; margin-bottom: 15px;">💀 Kryptonite & 🎯 Victims (Virtuali)</h3>
+        
+        <div class="info-box" style="margin-bottom: 15px;">
+          <b>🔍 Dettaglio Kryptonite & Victims:</b>
+          <br>• <b>Kryptonite</b>: Avversario con >50% di vittorie contro di te (min. 2 scontri). È chi dovresti temere.
+          <br>• <b>Victims</b>: Avversari con <50% di vittorie contro di te (min. 2 scontri). Sono i tuoi bersagli facili.
+        </div>
+        
+        <div class="grid">
+          ${h2hData.teamStats.map(stats => {
+            const hasKryptonite = stats.kryptonite;
+            const hasVictims = stats.victims.length > 0;
+            if (!hasKryptonite && !hasVictims) return '';
+            
+            return `
+              <div class="card">
+                <h3>${stats.name}</h3>
+                
+                ${hasKryptonite ? `
+                  <div class="kryptonite-card" style="margin-bottom: 10px;">
+                    <h4>💀 Kryptonite</h4>
+                    <div class="rival-item">
+                      <span class="name">${stats.kryptonite.opponent}</span>
+                      <span class="record">${stats.kryptonite.wins}-${stats.kryptonite.draws}-${stats.kryptonite.losses} (${stats.kryptonite.lossRate}% sconfitte)</span>
+                    </div>
+                  </div>
+                ` : ''}
+                
+                ${hasVictims ? `
+                  <div class="victim-card">
+                    <h4>🎯 Victims</h4>
+                    ${stats.victims.map(v => `
+                      <div class="rival-item">
+                        <span class="name">${v.opponent}</span>
+                        <span class="record">${v.wins}-${v.draws}-${v.losses} (${v.winRate}% vittorie)</span>
+                      </div>
+                    `).join('')}
+                  </div>
+                ` : ''}
+              </div>
+            `;
+          }).filter(html => html).join('')}
+        </div>
+        
+        <h3 style="margin-top: 25px; margin-bottom: 15px;">📈 Classifica Forza Virtuale</h3>
+        
+        <table>
+          <thead>
+            <tr>
+              <th style="text-align:left">Squadra</th>
+              <th>V</th>
+              <th>P</th>
+              <th>S</th>
+              <th>Win Rate</th>
+              <th style="width: 30%">Dominance</th>
+              <th>Best vs</th>
+              <th>Worst vs</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${[...h2hData.teamStats].sort((a, b) => {
+              const aTotal = a.totalH2HWins + a.totalH2HDraws + a.totalH2HLosses;
+              const bTotal = b.totalH2HWins + b.totalH2HDraws + b.totalH2HLosses;
+              const aRate = aTotal ? a.totalH2HWins / aTotal : 0;
+              const bRate = bTotal ? b.totalH2HWins / bTotal : 0;
+              return bRate - aRate;
+            }).map(stats => {
+              const total = stats.totalH2HWins + stats.totalH2HDraws + stats.totalH2HLosses;
+              const winRate = total ? ((stats.totalH2HWins / total) * 100).toFixed(1) : 0;
+              const winPct = total ? (stats.totalH2HWins / total) * 100 : 0;
+              const drawPct = total ? (stats.totalH2HDraws / total) * 100 : 0;
+              const lossPct = total ? (stats.totalH2HLosses / total) * 100 : 0;
+              
+              const bestRival = stats.rivals[0];
+              const worstRival = stats.rivals[stats.rivals.length - 1];
+              
+              return `
+                <tr>
+                  <td style="text-align:left"><b>${stats.name}</b></td>
+                  <td style="color:#10b981"><b>${stats.totalH2HWins}</b></td>
+                  <td style="color:#f59e0b">${stats.totalH2HDraws}</td>
+                  <td style="color:#ef4444">${stats.totalH2HLosses}</td>
+                  <td><b>${winRate}%</b></td>
+                  <td>
+                    <div class="dominance-bar">
+                      ${winPct > 0 ? `<div class="dominance-segment dominance-wins" style="width:${winPct}%">${winPct > 10 ? Math.round(winPct) + '%' : ''}</div>` : ''}
+                      ${drawPct > 0 ? `<div class="dominance-segment dominance-draws" style="width:${drawPct}%">${drawPct > 10 ? Math.round(drawPct) + '%' : ''}</div>` : ''}
+                      ${lossPct > 0 ? `<div class="dominance-segment dominance-losses" style="width:${lossPct}%">${lossPct > 10 ? Math.round(lossPct) + '%' : ''}</div>` : ''}
+                    </div>
+                  </td>
+                  <td style="color:#10b981; font-size:11px">${bestRival ? `${bestRival.opponent} (${bestRival.winRate}%)` : '-'}</td>
+                  <td style="color:#ef4444; font-size:11px">${worstRival && +worstRival.dominance < 0 ? `${worstRival.opponent} (${worstRival.winRate}%)` : '-'}</td>
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
+        
+        <div class="grid" style="margin-top: 25px;">
+          <div class="card">
+            <h3 style="color:#10b981">🏆 Più Forti (Virtuali)</h3>
+            ${[...h2hData.teamStats].sort((a, b) => {
+              const aTotal = a.totalH2HWins + a.totalH2HDraws + a.totalH2HLosses;
+              const bTotal = b.totalH2HWins + b.totalH2HDraws + b.totalH2HLosses;
+              return (bTotal ? b.totalH2HWins / bTotal : 0) - (aTotal ? a.totalH2HWins / aTotal : 0);
+            }).slice(0, 3).map((s, i) => {
+              const total = s.totalH2HWins + s.totalH2HDraws + s.totalH2HLosses;
+              const winRate = total ? ((s.totalH2HWins / total) * 100).toFixed(1) : 0;
+              return `
+                <div style="padding:8px 0;border-bottom:1px solid #ddd">
+                  ${['🥇','🥈','🥉'][i]} ${s.name} 
+                  <b style="color:#10b981">${winRate}%</b>
+                  <span style="color:#666;font-size:11px">(${s.totalH2HWins}V-${s.totalH2HDraws}P-${s.totalH2HLosses}S)</span>
+                </div>
+              `;
+            }).join('')}
+          </div>
+          <div class="card">
+            <h3 style="color:#ef4444">📉 Più Deboli (Virtuali)</h3>
+            ${[...h2hData.teamStats].sort((a, b) => {
+              const aTotal = a.totalH2HWins + a.totalH2HDraws + a.totalH2HLosses;
+              const bTotal = b.totalH2HWins + b.totalH2HDraws + b.totalH2HLosses;
+              return (aTotal ? a.totalH2HWins / aTotal : 0) - (bTotal ? b.totalH2HWins / bTotal : 0);
+            }).slice(0, 3).map((s, i) => {
+              const total = s.totalH2HWins + s.totalH2HDraws + s.totalH2HLosses;
+              const winRate = total ? ((s.totalH2HWins / total) * 100).toFixed(1) : 0;
+              return `
+                <div style="padding:8px 0;border-bottom:1px solid #ddd">
+                  ${['🥇','🥈','🥉'][i]} ${s.name} 
+                  <b style="color:#ef4444">${winRate}%</b>
+                  <span style="color:#666;font-size:11px">(${s.totalH2HWins}V-${s.totalH2HDraws}P-${s.totalH2HLosses}S)</span>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function calculateVariance() {
+      varianceData = teams.map((t, ti) => {
+        const scores = t.scores.map(s => +s).filter(s => !isNaN(s) && s > 0);
+        if (scores.length === 0) {
+          return { name: t.name, hasData: false };
+        }
+        
+        const sorted = [...scores].sort((a, b) => a - b);
+        const n = scores.length;
+        
+        // Basic stats
+        const sum = scores.reduce((a, b) => a + b, 0);
+        const mean = sum / n;
+        const floor = sorted[0];
+        const ceiling = sorted[n - 1];
+        const range = ceiling - floor;
+        
+        // Quartiles
+        const q1Idx = Math.floor(n * 0.25);
+        const q2Idx = Math.floor(n * 0.5);
+        const q3Idx = Math.floor(n * 0.75);
+        const q1 = sorted[q1Idx];
+        const median = sorted[q2Idx];
+        const q3 = sorted[q3Idx];
+        const iqr = q3 - q1;
+        
+        // Percentiles
+        const p10 = sorted[Math.floor(n * 0.10)] || floor;
+        const p90 = sorted[Math.floor(n * 0.90)] || ceiling;
+        
+        // Variance and Standard Deviation
+        const variance = scores.reduce((sum, s) => sum + Math.pow(s - mean, 2), 0) / n;
+        const stdDev = Math.sqrt(variance);
+        
+        // Coefficient of Variation (CV) - normalized measure of dispersion
+        const cv = (stdDev / mean) * 100;
+        
+        // Count games above/below thresholds
+        const aboveAvg = scores.filter(s => s > mean).length;
+        const belowAvg = scores.filter(s => s < mean).length;
+        const aboveCeiling80 = scores.filter(s => s >= ceiling * 0.9).length;
+        const belowFloor120 = scores.filter(s => s <= floor * 1.1).length;
+        
+        // Boom-Bust Index: higher = more volatile
+        // Based on how often they hit extremes vs staying in the middle
+        const middleRange = scores.filter(s => s >= q1 && s <= q3).length;
+        const extremes = n - middleRange;
+        const boomBustIndex = (extremes / n) * 100;
+        
+        // Consistency Score (0-100): higher = more reliable
+        const consistencyScore = Math.max(0, 100 - cv * 2);
+        
+        // Trend analysis (are they getting better or worse?)
+        let trend = 0;
+        if (n >= 4) {
+          const firstHalf = scores.slice(0, Math.floor(n/2));
+          const secondHalf = scores.slice(Math.floor(n/2));
+          const firstAvg = firstHalf.reduce((a,b) => a+b, 0) / firstHalf.length;
+          const secondAvg = secondHalf.reduce((a,b) => a+b, 0) / secondHalf.length;
+          trend = secondAvg - firstAvg;
+        }
+        
+        // Classification
+        let classification = '';
+        let classEmoji = '';
+        if (cv < 8) {
+          classification = 'Ultra Affidabile';
+          classEmoji = '🎯';
+        } else if (cv < 12) {
+          classification = 'Affidabile';
+          classEmoji = '✅';
+        } else if (cv < 18) {
+          classification = 'Normale';
+          classEmoji = '😐';
+        } else if (cv < 25) {
+          classification = 'Boom or Bust';
+          classEmoji = '🎰';
+        } else {
+          classification = 'Rollercoaster';
+          classEmoji = '🎢';
+        }
+        
+        return {
+          name: t.name,
+          hasData: true,
+          scores,
+          n,
+          mean: mean.toFixed(1),
+          floor,
+          ceiling,
+          range,
+          q1,
+          median,
+          q3,
+          iqr,
+          p10,
+          p90,
+          stdDev: stdDev.toFixed(1),
+          cv: cv.toFixed(1),
+          variance: variance.toFixed(1),
+          aboveAvg,
+          belowAvg,
+          aboveCeiling80,
+          belowFloor120,
+          boomBustIndex: boomBustIndex.toFixed(0),
+          consistencyScore: consistencyScore.toFixed(0),
+          trend: trend.toFixed(1),
+          classification,
+          classEmoji
+        };
+      }).filter(v => v.hasData);
+      
+      // Sort by consistency score
+      varianceData.sort((a, b) => +b.consistencyScore - +a.consistencyScore);
+    }
+
+    function renderVariance() {
+      if (!varianceData || varianceData.length === 0) {
+        document.getElementById('tab-variance').innerHTML = `
+          <h2>📉 Analisi Varianza</h2>
+          <div class="info-box">
+            <b>⚠️ Calcola prima i risultati nella tab "Dati"!</b>
+          </div>
+        `;
+        return;
+      }
+      
+      // Find global min/max for visualization
+      const allScores = varianceData.flatMap(v => v.scores);
+      const globalMin = Math.min(...allScores);
+      const globalMax = Math.max(...allScores);
+      const globalRange = globalMax - globalMin;
+      
+      const getPosition = (value) => ((value - globalMin) / globalRange) * 100;
+      
+      document.getElementById('tab-variance').innerHTML = `
+        <h2>📉 Analisi Varianza</h2>
+        
+        <div class="info-box">
+          <b>📖 Guida Completa all'Analisi della Varianza</b>
+          <br><br>
+          <b>🎯 Cos'è l'Analisi della Varianza?</b>
+          <br>Questa sezione analizza quanto sono COSTANTI o VARIABILI i punteggi di ogni squadra. Una squadra può avere la stessa media di un'altra, ma comportarsi in modo completamente diverso: una sempre intorno ai 70 punti, l'altra che oscilla tra 55 e 85.
+          <br><br>
+          <b>📊 Glossario dei termini statistici:</b>
+          <br><br>
+          <b>• Floor (Pavimento):</b> Il punteggio PIÙ BASSO mai ottenuto. Rappresenta il tuo "worst case scenario".
+          <br><br>
+          <b>• Ceiling (Soffitto):</b> Il punteggio PIÙ ALTO mai ottenuto. Rappresenta il tuo potenziale massimo.
+          <br><br>
+          <b>• Range:</b> Differenza tra Ceiling e Floor. Più è grande, più sei imprevedibile.
+          <br><br>
+          <b>• Mediana:</b> Il valore centrale quando ordini tutti i punteggi. Il 50% delle giornate sei sopra, il 50% sotto.
+          <br><br>
+          <b>• Q1 (Primo Quartile):</b> Il 25% delle tue giornate è sotto questo valore.
+          <br><br>
+          <b>• Q3 (Terzo Quartile):</b> Il 75% delle tue giornate è sotto questo valore.
+          <br><br>
+          <b>• IQR (Range Interquartile):</b> Q3 - Q1. È dove cade il 50% CENTRALE dei tuoi punteggi, escludendo gli estremi. Più è stretto, più sei costante.
+          <br><br>
+          <b>• Deviazione Standard (σ):</b> Misura di dispersione. Indica quanto i punteggi si "allontanano" dalla media. Più è alta, più sei variabile.
+          <br><br>
+          <b>• CV% (Coefficiente di Variazione):</b> (Deviazione Standard / Media) × 100. È la variabilità NORMALIZZATA, che permette confronti equi tra squadre con medie diverse.
+          <br><br>
+          <b>🏷️ Classificazioni:</b>
+          <br>• <b>🎯 Ultra Affidabile</b> (CV < 8%): Punteggi costantissimi, pochissime sorprese
+          <br>• <b>✅ Affidabile</b> (CV 8-12%): Buona costanza, oscillazioni contenute  
+          <br>• <b>😐 Normale</b> (CV 12-18%): Variabilità nella media
+          <br>• <b>🎰 Boom or Bust</b> (CV 18-25%): Imprevedibile, può esplodere o deludere
+          <br>• <b>🎢 Rollercoaster</b> (CV > 25%): Montagne russe, impossibile prevedere
+          <br><br>
+          <b>💡 Perché è importante?</b>
+          <br>• Per capire se affidarti a una squadra nei momenti cruciali
+          <br>• Per valutare scambi: meglio una squadra costante o una esplosiva?
+          <br>• Per gestire il rischio: squadre "boom or bust" possono vincere tutto o farti retrocedere
+        </div>
+        
+        <h3 style="margin-top: 20px; margin-bottom: 15px;">🎯 Mappa Varianza Visuale</h3>
+        <div class="info-box" style="margin-bottom: 10px; padding: 10px; font-size: 11px;">
+          <b>Come leggere il grafico:</b> 
+          🔴 Linea rossa = Floor | 🟢 Linea verde = Ceiling | 🔵 Linea blu = Mediana | 
+          📦 Box blu = Range IQR (50% centrale) | ⚫ Punti grigi = singole giornate
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 11px; color: #666; margin-bottom: 5px;">
+          <span>← Punteggi bassi (${globalMin.toFixed(0)})</span>
+          <span>Punteggi alti (${globalMax.toFixed(0)}) →</span>
+        </div>
+        
+        ${varianceData.map(v => `
+          <div style="margin-bottom: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+              <span style="font-weight: bold;">${v.name}</span>
+              <span class="${+v.cv < 12 ? 'reliable-badge' : +v.cv > 18 ? 'boom-bust-badge' : ''}" style="${+v.cv >= 12 && +v.cv <= 18 ? 'color:#666;font-size:11px' : ''}">
+                ${v.classEmoji} ${v.classification}
+              </span>
+            </div>
+            <div class="variance-meter">
+              <!-- IQR Range -->
+              <div class="variance-range" style="left: ${getPosition(v.q1)}%; width: ${getPosition(v.q3) - getPosition(v.q1)}%;"></div>
+              <!-- Floor marker -->
+              <div class="variance-floor" style="left: ${getPosition(v.floor)}%;">
+                <span class="variance-label" style="color: #ef4444;">${v.floor}</span>
+              </div>
+              <!-- Ceiling marker -->
+              <div class="variance-ceiling" style="left: ${getPosition(v.ceiling)}%;">
+                <span class="variance-label" style="color: #10b981;">${v.ceiling}</span>
+              </div>
+              <!-- Median marker -->
+              <div class="variance-median" style="left: ${getPosition(v.median)}%;">
+                <span class="variance-label" style="color: #1d4ed8;">M:${v.median}</span>
+              </div>
+              <!-- Individual score dots -->
+              ${v.scores.map(s => `<div class="variance-dot" style="left: ${getPosition(s)}%;"></div>`).join('')}
+            </div>
+          </div>
+        `).join('')}
+        
+        <h3 style="margin-top: 30px; margin-bottom: 15px;">📊 Tabella Dettagliata</h3>
+        <table>
+          <thead>
+            <tr>
+              <th style="text-align:left">Squadra</th>
+              <th>Media</th>
+              <th style="color:#ef4444">Floor</th>
+              <th style="color:#10b981">Ceiling</th>
+              <th>Range</th>
+              <th>Q1</th>
+              <th>Mediana</th>
+              <th>Q3</th>
+              <th>IQR</th>
+              <th>Std Dev</th>
+              <th>CV%</th>
+              <th>Tipo</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${varianceData.map(v => `
+              <tr>
+                <td style="text-align:left"><b>${v.name}</b></td>
+                <td>${v.mean}</td>
+                <td style="color:#ef4444"><b>${v.floor}</b></td>
+                <td style="color:#10b981"><b>${v.ceiling}</b></td>
+                <td>${v.range}</td>
+                <td>${v.q1}</td>
+                <td><b>${v.median}</b></td>
+                <td>${v.q3}</td>
+                <td>${v.iqr}</td>
+                <td>±${v.stdDev}</td>
+                <td style="font-weight:bold; color: ${+v.cv < 12 ? '#10b981' : +v.cv > 18 ? '#ef4444' : '#666'}">${v.cv}%</td>
+                <td>${v.classEmoji}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+        
+        <h3 style="margin-top: 30px; margin-bottom: 15px;">📈 Indice di Consistenza</h3>
+        <table>
+          <thead>
+            <tr>
+              <th style="text-align:left">Squadra</th>
+              <th style="width:30%">Consistenza</th>
+              <th>Score</th>
+              <th>Sopra Media</th>
+              <th>Sotto Media</th>
+              <th>Near Ceiling</th>
+              <th>Near Floor</th>
+              <th>Trend</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${varianceData.map(v => {
+              const consistencyColor = +v.consistencyScore >= 80 ? '#10b981' : +v.consistencyScore >= 60 ? '#3b82f6' : +v.consistencyScore >= 40 ? '#f59e0b' : '#ef4444';
+              const trendArrow = +v.trend > 2 ? '📈' : +v.trend < -2 ? '📉' : '➡️';
+              const trendColor = +v.trend > 2 ? '#10b981' : +v.trend < -2 ? '#ef4444' : '#666';
+              return `
+                <tr>
+                  <td style="text-align:left"><b>${v.name}</b></td>
+                  <td>
+                    <div class="consistency-bar">
+                      <div class="consistency-fill" style="width: ${v.consistencyScore}%; background: ${consistencyColor}"></div>
+                    </div>
+                  </td>
+                  <td style="font-weight:bold; color: ${consistencyColor}">${v.consistencyScore}/100</td>
+                  <td style="color:#10b981">${v.aboveAvg}/${v.n}</td>
+                  <td style="color:#ef4444">${v.belowAvg}/${v.n}</td>
+                  <td style="color:#10b981">${v.aboveCeiling80}</td>
+                  <td style="color:#ef4444">${v.belowFloor120}</td>
+                  <td style="color:${trendColor}">${trendArrow} ${v.trend > 0 ? '+' : ''}${v.trend}</td>
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
+        
+        <h3 style="margin-top: 30px; margin-bottom: 15px;">📊 Sparklines (Andamento Giornate)</h3>
+        <div class="grid">
+          ${varianceData.map(v => {
+            const maxScore = Math.max(...v.scores);
+            return `
+              <div class="card">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                  <h3 style="margin:0">${v.name}</h3>
+                  <span style="font-size:11px; color:#666">μ=${v.mean}</span>
+                </div>
+                <div class="sparkline">
+                  ${v.scores.map((s, i) => {
+                    const height = (s / maxScore) * 100;
+                    const color = s >= +v.mean ? '#10b981' : '#ef4444';
+                    return `<div class="sparkline-bar" style="height:${height}%; background:${color};" title="G${i+1}: ${s}"></div>`;
+                  }).join('')}
+                </div>
+                <div style="display:flex; justify-content:space-between; font-size:10px; color:#666; margin-top:5px;">
+                  <span>G1</span>
+                  <span>G${v.n}</span>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+        
+        <div class="grid" style="margin-top: 25px;">
+          <div class="card">
+            <h3 style="color:#10b981">🎯 Più Affidabili</h3>
+            ${[...varianceData].sort((a, b) => +a.cv - +b.cv).slice(0, 3).map((v, i) => `
+              <div style="padding:8px 0;border-bottom:1px solid #ddd">
+                ${['🥇','🥈','🥉'][i]} ${v.name} 
+                <b style="color:#10b981">CV ${v.cv}%</b>
+                <span style="color:#666;font-size:11px">(±${v.stdDev})</span>
+              </div>
+            `).join('')}
+          </div>
+          <div class="card">
+            <h3 style="color:#f59e0b">🎰 Boom or Bust</h3>
+            ${[...varianceData].sort((a, b) => +b.cv - +a.cv).slice(0, 3).map((v, i) => `
+              <div style="padding:8px 0;border-bottom:1px solid #ddd">
+                ${['🥇','🥈','🥉'][i]} ${v.name} 
+                <b style="color:#f59e0b">CV ${v.cv}%</b>
+                <span style="color:#666;font-size:11px">(range: ${v.floor}-${v.ceiling})</span>
+              </div>
+            `).join('')}
+          </div>
+          <div class="card">
+            <h3 style="color:#10b981">📈 In Crescita</h3>
+            ${[...varianceData].sort((a, b) => +b.trend - +a.trend).slice(0, 3).map((v, i) => `
+              <div style="padding:8px 0;border-bottom:1px solid #ddd">
+                ${['🥇','🥈','🥉'][i]} ${v.name} 
+                <b style="color:#10b981">+${v.trend}</b>
+                <span style="color:#666;font-size:11px">pts/metà stagione</span>
+              </div>
+            `).join('')}
+          </div>
+          <div class="card">
+            <h3 style="color:#ef4444">📉 In Calo</h3>
+            ${[...varianceData].sort((a, b) => +a.trend - +b.trend).slice(0, 3).map((v, i) => `
+              <div style="padding:8px 0;border-bottom:1px solid #ddd">
+                ${['🥇','🥈','🥉'][i]} ${v.name} 
+                <b style="color:#ef4444">${v.trend}</b>
+                <span style="color:#666;font-size:11px">pts/metà stagione</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    renderTable();
+  </script>
+</body>
+</html>
