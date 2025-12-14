@@ -2161,48 +2161,613 @@
                         )}
 
                         {activeTab === 'toolculo' && (
-                            <div className="space-y-6">
-                                <h2 className="text-xl font-bold">🎲 Tool Culo - Analizzatore Fortuna</h2>
-                                <p className="text-slate-400">Analisi fortuna completa per il fantacalcio.</p>
-                                
-                                <div className="glass rounded-2xl p-6">
-                                    <div className="text-center py-8">
-                                        <div className="text-6xl mb-4">🎲</div>
-                                        <h3 className="text-2xl font-bold mb-4">Analizzatore Fortuna Fantacalcio</h3>
-                                        <p className="text-slate-400 mb-6 max-w-lg mx-auto">
-                                            Questo tool analizza i risultati del tuo fantacalcio per scoprire quanto la FORTUNA (o sfortuna) abbia influenzato la tua stagione.
-                                        </p>
-                                        <p className="text-slate-400 mb-6">
-                                            Per utilizzare il tool completo, apri il file <code className="bg-white/10 px-2 py-1 rounded">tool.html</code> separatamente nel browser.
-                                        </p>
-                                        
-                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8 text-left">
-                                            <div className="bg-white/5 rounded-xl p-4">
-                                                <h4 className="font-bold text-emerald-400 mb-2">📊 Fortuna</h4>
-                                                <p className="text-sm text-slate-400">Analizza quanto sei stato fortunato o sfortunato rispetto ai punteggi</p>
-                                            </div>
-                                            <div className="bg-white/5 rounded-xl p-4">
-                                                <h4 className="font-bold text-blue-400 mb-2">🔬 Pitagorica</h4>
-                                                <p className="text-sm text-slate-400">Calcola la classifica attesa in base ai punti fatti</p>
-                                            </div>
-                                            <div className="bg-white/5 rounded-xl p-4">
-                                                <h4 className="font-bold text-purple-400 mb-2">🎰 What If</h4>
-                                                <p className="text-sm text-slate-400">Simula scenari alternativi con calendari randomici</p>
-                                            </div>
-                                            <div className="bg-white/5 rounded-xl p-4">
-                                                <h4 className="font-bold text-amber-400 mb-2">⚔️ Scontri Virtuali</h4>
-                                                <p className="text-sm text-slate-400">Matrice testa a testa contro tutti gli avversari</p>
-                                            </div>
-                                            <div className="bg-white/5 rounded-xl p-4">
-                                                <h4 className="font-bold text-pink-400 mb-2">📉 Varianza</h4>
-                                                <p className="text-sm text-slate-400">Analisi della consistenza e variabilità dei punteggi</p>
-                                            </div>
-                                            <div className="bg-white/5 rounded-xl p-4">
-                                                <h4 className="font-bold text-cyan-400 mb-2">🏆 Rankings</h4>
-                                                <p className="text-sm text-slate-400">Classifiche speciali e premi di categoria</p>
-                                            </div>
-                                        </div>
+                            <div className="space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <h2 className="text-xl font-bold">🎲 Tool Culo - Analizzatore Fortuna</h2>
+                                        <p className="text-slate-400 text-sm">Analisi fortuna completa per il fantacalcio</p>
                                     </div>
+                                    <button 
+                                        onClick={() => {
+                                            const iframe = document.getElementById('toolculo-iframe');
+                                            if (iframe.requestFullscreen) iframe.requestFullscreen();
+                                        }}
+                                        className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm transition-colors"
+                                    >
+                                        ⛶ Fullscreen
+                                    </button>
+                                </div>
+                                
+                                <div className="glass rounded-2xl overflow-hidden" style={{ height: 'calc(100vh - 200px)', minHeight: '600px' }}>
+                                    <iframe 
+                                        id="toolculo-iframe"
+                                        srcDoc={`<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎲 Fantacalcio Luck Analyzer</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f172a; padding: 20px; color: #e2e8f0; }
+    .container { max-width: 1200px; margin: 0 auto; background: rgba(30, 41, 59, 0.8); border-radius: 12px; padding: 20px; border: 1px solid rgba(255,255,255,0.1); }
+    h1 { text-align: center; color: #f1f5f9; margin-bottom: 5px; font-size: 24px; }
+    .subtitle { text-align: center; color: #94a3b8; margin-bottom: 20px; font-size: 14px; }
+    .tabs { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 15px; }
+    .tab { padding: 8px 16px; background: rgba(255,255,255,0.1); border: none; border-radius: 8px 8px 0 0; cursor: pointer; font-size: 13px; color: #e2e8f0; transition: all 0.2s; }
+    .tab:hover { background: rgba(255,255,255,0.15); }
+    .tab.active { background: rgba(16, 185, 129, 0.3); border: 1px solid rgba(16, 185, 129, 0.5); border-bottom: none; font-weight: bold; color: #10b981; }
+    .content { border: 1px solid rgba(255,255,255,0.1); border-radius: 0 8px 8px 8px; padding: 20px; min-height: 400px; background: rgba(15, 23, 42, 0.5); }
+    .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 14px; transition: all 0.2s; }
+    .btn-primary { background: #10b981; color: white; }
+    .btn-secondary { background: #3b82f6; color: white; }
+    .btn-purple { background: #8b5cf6; color: white; }
+    .btn-orange { background: #f97316; color: white; }
+    .btn:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 13px; }
+    th, td { border: 1px solid rgba(255,255,255,0.1); padding: 8px; text-align: center; }
+    th { background: rgba(255,255,255,0.05); font-weight: bold; color: #94a3b8; }
+    td { color: #e2e8f0; }
+    input[type="text"], input[type="number"] { width: 100%; padding: 6px; border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; font-size: 13px; background: rgba(255,255,255,0.1); color: #e2e8f0; }
+    input:focus { outline: none; border-color: #10b981; }
+    .info-box { background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); padding: 15px; border-radius: 6px; margin: 15px 0; font-size: 13px; color: #94a3b8; }
+    .info-box b { display: block; margin-bottom: 5px; color: #e2e8f0; }
+    .flex { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 15px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin: 15px 0; }
+    .card { border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 15px; background: rgba(255,255,255,0.05); }
+    .card h3 { font-size: 14px; margin-bottom: 10px; color: #e2e8f0; }
+    .luck-positive { background: #10b981; color: white; padding: 4px 8px; border-radius: 4px; font-weight: bold; }
+    .luck-negative { background: #ef4444; color: white; padding: 4px 8px; border-radius: 4px; font-weight: bold; }
+    .luck-neutral { background: rgba(255,255,255,0.1); padding: 4px 8px; border-radius: 4px; color: #94a3b8; }
+    label { font-size: 13px; font-weight: 500; color: #e2e8f0; }
+    .hidden { display: none; }
+    .whatif-controls { background: linear-gradient(135deg, rgba(102,126,234,0.3) 0%, rgba(118,75,162,0.3) 100%); padding: 20px; border-radius: 10px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1); }
+    .whatif-controls label { color: white; }
+    .whatif-controls input[type="number"] { width: 120px; padding: 8px; border: none; border-radius: 6px; font-size: 14px; background: rgba(255,255,255,0.2); color: white; }
+    .progress-container { background: rgba(255,255,255,0.1); border-radius: 10px; height: 20px; overflow: hidden; margin: 15px 0; }
+    .progress-bar { background: linear-gradient(90deg, #10b981, #3b82f6); height: 100%; transition: width 0.3s; display: flex; align-items: center; justify-content: center; color: white; font-size: 11px; font-weight: bold; }
+    .simulation-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0; }
+    .stat-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; text-align: center; }
+    .stat-card .value { font-size: 28px; font-weight: bold; color: #10b981; }
+    .stat-card .label { font-size: 12px; color: #94a3b8; margin-top: 5px; }
+    .position-bar { height: 24px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; display: flex; }
+    .position-segment { height: 100%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; color: white; min-width: 20px; }
+    .highlight-row { background: rgba(251, 191, 36, 0.2) !important; }
+    .highlight-row td { font-weight: bold; color: #fbbf24; }
+    .comparison-arrow { font-size: 16px; margin: 0 5px; }
+    .comparison-arrow.up { color: #10b981; }
+    .comparison-arrow.down { color: #ef4444; }
+    .comparison-arrow.same { color: #94a3b8; }
+    .whatif-legend { display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; margin: 15px 0; font-size: 12px; }
+    .whatif-legend-item { display: flex; align-items: center; gap: 5px; color: #94a3b8; }
+    .whatif-legend-color { width: 16px; height: 16px; border-radius: 3px; }
+    .h2h-matrix { overflow-x: auto; }
+    .h2h-matrix table { font-size: 11px; }
+    .h2h-matrix th, .h2h-matrix td { padding: 6px; min-width: 70px; }
+    .h2h-matrix .team-header { writing-mode: vertical-rl; text-orientation: mixed; transform: rotate(180deg); max-width: 40px; height: 100px; font-weight: bold; }
+    .h2h-cell { position: relative; }
+    .h2h-cell .record { font-weight: bold; font-size: 12px; }
+    .h2h-cell .details { font-size: 9px; color: #94a3b8; margin-top: 2px; }
+    .h2h-win { background: rgba(16, 185, 129, 0.2); }
+    .h2h-lose { background: rgba(239, 68, 68, 0.2); }
+    .h2h-draw { background: rgba(251, 191, 36, 0.2); }
+    .h2h-self { background: rgba(255,255,255,0.05); }
+    .h2h-no-match { background: rgba(255,255,255,0.02); color: #64748b; }
+    .kryptonite-card { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 10px; padding: 15px; }
+    .kryptonite-card h4 { color: #ef4444; margin-bottom: 10px; }
+    .victim-card { background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 10px; padding: 15px; }
+    .victim-card h4 { color: #10b981; margin-bottom: 10px; }
+    .rival-item { display: flex; justify-content: space-between; align-items: center; padding: 8px; background: rgba(255,255,255,0.05); border-radius: 6px; margin-bottom: 6px; }
+    .rival-item .name { font-weight: bold; color: #e2e8f0; }
+    .rival-item .record { font-size: 12px; color: #94a3b8; }
+    .dominance-bar { height: 20px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; display: flex; }
+    .dominance-segment { height: 100%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; color: white; }
+    .dominance-wins { background: #10b981; }
+    .dominance-draws { background: #f59e0b; }
+    .dominance-losses { background: #ef4444; }
+    .variance-meter { position: relative; height: 40px; background: linear-gradient(90deg, rgba(239,68,68,0.3) 0%, rgba(251,191,36,0.3) 25%, rgba(16,185,129,0.3) 50%, rgba(251,191,36,0.3) 75%, rgba(239,68,68,0.3) 100%); border-radius: 8px; margin: 10px 0; }
+    .variance-range { position: absolute; height: 100%; background: rgba(59, 130, 246, 0.3); border: 2px solid #3b82f6; border-radius: 6px; }
+    .variance-median { position: absolute; width: 4px; height: 100%; background: #1d4ed8; border-radius: 2px; transform: translateX(-50%); }
+    .variance-floor { position: absolute; width: 3px; height: 100%; background: #ef4444; transform: translateX(-50%); }
+    .variance-ceiling { position: absolute; width: 3px; height: 100%; background: #10b981; transform: translateX(-50%); }
+    .variance-dot { position: absolute; width: 8px; height: 8px; background: #94a3b8; border-radius: 50%; top: 50%; transform: translate(-50%, -50%); }
+    .variance-label { position: absolute; font-size: 9px; font-weight: bold; top: -14px; transform: translateX(-50%); white-space: nowrap; color: #e2e8f0; }
+    .reliable-badge { background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: bold; }
+    .boom-bust-badge { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: bold; }
+    .consistency-bar { height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; }
+    .consistency-fill { height: 100%; border-radius: 4px; }
+    .sparkline { display: flex; align-items: flex-end; gap: 2px; height: 30px; }
+    .sparkline-bar { flex: 1; background: #3b82f6; border-radius: 2px 2px 0 0; min-width: 4px; }
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎲 Fantacalcio Luck Analyzer</h1>
+    <p class="subtitle">Analisi fortuna completa per il tuo fantacalcio</p>
+    
+    <div class="tabs">
+      <button class="tab active" onclick="showTab('input')">📝 Dati</button>
+      <button class="tab" onclick="showTab('results')">📊 Fortuna</button>
+      <button class="tab" onclick="showTab('stats')">📈 Stats</button>
+      <button class="tab" onclick="showTab('pythagorean')">🔬 Pitagorica</button>
+      <button class="tab" onclick="showTab('schedule')">📅 Calendario</button>
+      <button class="tab" onclick="showTab('rankings')">🏆 Top</button>
+      <button class="tab" onclick="showTab('whatif')">🎰 What If</button>
+      <button class="tab" onclick="showTab('h2h')">⚔️ Scontri</button>
+      <button class="tab" onclick="showTab('variance')">📉 Varianza</button>
+    </div>
+    
+    <div class="content">
+      <div id="tab-input">
+        <div class="info-box" style="margin-bottom: 15px;">
+          <b>📖 Benvenuto nel Fantacalcio Luck Analyzer!</b>
+          <br><br>
+          <b>🎯 A cosa serve questo strumento?</b>
+          <br>Questo tool analizza i risultati del tuo fantacalcio per scoprire quanto la FORTUNA (o sfortuna) abbia influenzato la tua stagione.
+          <br><br>
+          <b>📝 Come inserire i dati:</b>
+          <br>1. <b>Numero di giornate</b>: Imposta quante giornate sono state giocate
+          <br>2. <b>Per ogni squadra inserisci</b>: Nome, Punteggi di ogni giornata, Vittorie (V), Pareggi (P)
+          <br>3. Clicca <b>"🎯 Calcola"</b> per generare tutte le analisi
+          <br><br>
+          <b>⚠️ Importante:</b> I punteggi sono i punti fantacalcio (es: 72.5), NON i punti classifica!
+        </div>
+        
+        <div class="flex">
+          <label>Giornate: <input type="number" id="days" value="10" min="1" max="38" style="width:60px" onchange="updateDays()"></label>
+          <button class="btn btn-secondary" onclick="addTeam()">+ Squadra</button>
+          <label class="btn btn-purple" style="cursor:pointer">📁 Importa CSV<input type="file" accept=".csv" onchange="loadFile(event)" style="display:none"></label>
+        </div>
+        
+        <div class="info-box">
+          <b>📋 Importazione CSV:</b>
+          <br><b>Formato:</b> <code>Nome,G1,G2,G3,...,Vinte,Pareggi</code>
+          <br>Oppure: <code>Giornata,HomeTeam,AwayTeam,HomePts,AwayPts,Result</code>
+        </div>
+        
+        <div id="table-container"></div>
+        
+        <button class="btn btn-primary" style="width:100%; margin-top:15px" onclick="calculate()">🎯 Calcola</button>
+      </div>
+      
+      <div id="tab-results" class="hidden"></div>
+      <div id="tab-stats" class="hidden"></div>
+      <div id="tab-pythagorean" class="hidden"></div>
+      <div id="tab-schedule" class="hidden"></div>
+      <div id="tab-rankings" class="hidden"></div>
+      <div id="tab-whatif" class="hidden"></div>
+      <div id="tab-h2h" class="hidden"></div>
+      <div id="tab-variance" class="hidden"></div>
+    </div>
+  </div>
+
+  <script>
+    let teams = [
+      { name: 'Squadra 1', scores: Array(10).fill(''), wins: '', draws: '' },
+      { name: 'Squadra 2', scores: Array(10).fill(''), wins: '', draws: '' }
+    ];
+    let days = 10;
+    let results = null;
+    let whatIfResults = null;
+    let h2hData = null;
+    let varianceData = null;
+
+    function showTab(tab) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('[id^="tab-"]').forEach(t => t.classList.add('hidden'));
+      event.target.classList.add('active');
+      document.getElementById('tab-' + tab).classList.remove('hidden');
+    }
+
+    function updateDays() {
+      days = Math.max(1, Math.min(38, parseInt(document.getElementById('days').value) || 10));
+      teams = teams.map(t => ({ ...t, scores: Array(days).fill('').map((_, i) => t.scores[i] || '') }));
+      renderTable();
+    }
+
+    function addTeam() {
+      teams.push({ name: 'Squadra ' + (teams.length + 1), scores: Array(days).fill(''), wins: '', draws: '' });
+      renderTable();
+    }
+
+    function removeTeam(idx) {
+      if (teams.length > 2) { teams.splice(idx, 1); renderTable(); }
+    }
+
+    function renderTable() {
+      document.getElementById('table-container').innerHTML = 
+        '<table><thead><tr><th style="text-align:left">Nome</th>' +
+        Array(days).fill(0).map((_, i) => '<th>G'+(i+1)+'</th>').join('') +
+        '<th style="background:rgba(16,185,129,0.2)">V</th><th style="background:rgba(251,191,36,0.2)">P</th><th></th>' +
+        '</tr></thead><tbody>' +
+        teams.map((t, i) => 
+          '<tr><td><input value="'+t.name+'" onchange="teams['+i+'].name=this.value"></td>' +
+          Array(days).fill(0).map((_, j) => '<td><input type="number" value="'+t.scores[j]+'" onchange="teams['+i+'].scores['+j+']=this.value"></td>').join('') +
+          '<td style="background:rgba(16,185,129,0.2)"><input type="number" value="'+t.wins+'" onchange="teams['+i+'].wins=this.value"></td>' +
+          '<td style="background:rgba(251,191,36,0.2)"><input type="number" value="'+t.draws+'" onchange="teams['+i+'].draws=this.value"></td>' +
+          '<td><button onclick="removeTeam('+i+')" style="border:none;background:none;color:#ef4444;font-size:20px;cursor:pointer">×</button></td></tr>'
+        ).join('') +
+        '</tbody></table>';
+    }
+
+    function loadFile(e) {
+      const file = e.target.files[0]; if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        try {
+          const lines = ev.target.result.split(/\\r?\\n/).filter(l => l.trim());
+          const fl = lines[0].toLowerCase();
+          
+          if (fl.includes('hometeam') || fl.includes('awayteam')) {
+            const sep = fl.includes(';') ? ';' : ',';
+            const matches = lines.slice(1).map(l => {
+              const c = l.split(sep).map(x => x.trim());
+              return { day: +c[0], home: c[1], away: c[2], hp: +c[3], ap: +c[4], res: c[5] };
+            }).filter(m => m.day && m.home && m.away);
+            
+            const allTeams = [...new Set(matches.flatMap(m => [m.home, m.away]))];
+            days = Math.max(...matches.map(m => m.day));
+            document.getElementById('days').value = days;
+            
+            teams = allTeams.map(name => {
+              const scores = Array(days).fill('');
+              let wins = 0, draws = 0;
+              matches.filter(m => m.home === name || m.away === name).forEach(m => {
+                const isHome = m.home === name;
+                const pts = isHome ? m.hp : m.ap;
+                scores[m.day - 1] = pts;
+                if ((isHome && m.res === 'H') || (!isHome && m.res === 'A')) wins++;
+                else if (m.res === 'D') draws++;
+              });
+              return { name, scores, wins: wins.toString(), draws: draws.toString() };
+            });
+          } else {
+            const sep = fl.includes(';') ? ';' : ',';
+            const data = lines.map(l => l.split(sep).map(x => x.trim()));
+            const headers = data[0].map(h => h.toLowerCase());
+            const nameIdx = headers.findIndex(h => h.includes('nome') || h.includes('team') || h.includes('squadra'));
+            const winsIdx = headers.findIndex(h => h.includes('vint') || h.includes('win') || h === 'v' || h === 'w');
+            const drawsIdx = headers.findIndex(h => h.includes('pareg') || h.includes('draw') || h === 'p' || h === 'd');
+            
+            const scoreIdxs = headers.map((h, i) => (h.match(/^g\\d+$/) || h.match(/^\\d+$/) || h.includes('giornata')) ? i : -1).filter(i => i !== -1);
+            if (scoreIdxs.length === 0) {
+              for (let i = 0; i < headers.length; i++) {
+                if (i !== nameIdx && i !== winsIdx && i !== drawsIdx && !isNaN(parseFloat(data[1]?.[i]))) scoreIdxs.push(i);
+              }
+            }
+            
+            days = scoreIdxs.length;
+            document.getElementById('days').value = days;
+            
+            teams = data.slice(1).filter(r => r[nameIdx]).map(r => ({
+              name: r[nameIdx] || '',
+              scores: scoreIdxs.map(i => r[i] || ''),
+              wins: winsIdx >= 0 ? (r[winsIdx] || '') : '',
+              draws: drawsIdx >= 0 ? (r[drawsIdx] || '') : ''
+            }));
+          }
+          
+          renderTable();
+          alert('✅ Dati importati: ' + teams.length + ' squadre, ' + days + ' giornate');
+        } catch (err) {
+          alert('❌ Errore: ' + err.message);
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function calculate() {
+      const valid = teams.filter(t => t.name && t.scores.some(s => s !== ''));
+      if (valid.length < 2) { alert('Inserisci almeno 2 squadre con punteggi'); return; }
+      
+      results = valid.map(t => {
+        const scores = t.scores.map(s => parseFloat(s) || 0).filter(s => s > 0);
+        const avg = scores.length ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
+        const wins = parseInt(t.wins) || 0;
+        const draws = parseInt(t.draws) || 0;
+        const losses = Math.max(0, scores.length - wins - draws);
+        return { name: t.name, scores, avg, wins, draws, losses, total: scores.reduce((a, b) => a + b, 0) };
+      });
+      
+      const allScores = results.flatMap(r => r.scores).sort((a, b) => a - b);
+      const n = results.length;
+      
+      results.forEach(r => {
+        let virtualWins = 0, virtualDraws = 0;
+        r.scores.forEach(myScore => {
+          const dayScores = results.filter(x => x !== r).flatMap(x => x.scores.length > r.scores.indexOf(myScore) ? [x.scores[r.scores.indexOf(myScore)]] : []);
+          dayScores.forEach(oppScore => {
+            if (myScore > oppScore) virtualWins++;
+            else if (myScore === oppScore) virtualDraws++;
+          });
+        });
+        
+        const gamesVirtual = r.scores.length * (n - 1);
+        r.virtualWins = virtualWins;
+        r.virtualDraws = virtualDraws;
+        r.virtualLosses = gamesVirtual - virtualWins - virtualDraws;
+        r.virtualWinRate = gamesVirtual > 0 ? (virtualWins / gamesVirtual * 100) : 0;
+        
+        const expectedWins = r.scores.length * r.virtualWinRate / 100;
+        const expectedDraws = r.scores.length * (virtualDraws / gamesVirtual);
+        r.expectedWins = expectedWins;
+        r.expectedDraws = expectedDraws;
+        
+        r.luckWins = r.wins - expectedWins;
+        r.luckDraws = r.draws - expectedDraws;
+        r.luckIndex = (r.luckWins * 3 + r.luckDraws * 1);
+        
+        const stdDev = Math.sqrt(r.scores.reduce((sum, s) => sum + Math.pow(s - r.avg, 2), 0) / r.scores.length);
+        r.stdDev = stdDev;
+        r.consistency = 100 - Math.min(stdDev * 2, 100);
+        r.high = Math.max(...r.scores);
+        r.low = Math.min(...r.scores);
+      });
+      
+      results.sort((a, b) => b.luckIndex - a.luckIndex);
+      
+      renderResults();
+      renderStats();
+      renderPythagorean();
+      renderSchedule();
+      renderRankings();
+      renderWhatIf();
+      calculateH2H();
+      calculateVariance();
+    }
+
+    function renderResults() {
+      const html = '<h3>📊 Analisi Fortuna</h3>' +
+        '<div class="info-box"><b>Come leggere i risultati:</b><br>' +
+        '• <b>Indice Fortuna</b>: Positivo = fortunato, Negativo = sfortunato<br>' +
+        '• <b>Vittorie Attese</b>: Quante vittorie "meritavi" in base ai punteggi<br>' +
+        '• <b>Win Rate Virtuale</b>: % vittorie se giocassi contro tutti ogni giornata</div>' +
+        '<table><thead><tr><th>Squadra</th><th>Media</th><th>V Reali</th><th>V Attese</th><th>Diff</th><th>Win Rate</th><th>Fortuna</th></tr></thead><tbody>' +
+        results.map(r => 
+          '<tr><td style="text-align:left;font-weight:bold">' + r.name + '</td>' +
+          '<td>' + r.avg.toFixed(1) + '</td>' +
+          '<td>' + r.wins + '</td>' +
+          '<td>' + r.expectedWins.toFixed(1) + '</td>' +
+          '<td class="' + (r.luckWins >= 0 ? 'luck-positive' : 'luck-negative') + '">' + (r.luckWins >= 0 ? '+' : '') + r.luckWins.toFixed(1) + '</td>' +
+          '<td>' + r.virtualWinRate.toFixed(1) + '%</td>' +
+          '<td><span class="' + (r.luckIndex >= 2 ? 'luck-positive' : r.luckIndex <= -2 ? 'luck-negative' : 'luck-neutral') + '">' + (r.luckIndex >= 0 ? '+' : '') + r.luckIndex.toFixed(1) + '</span></td></tr>'
+        ).join('') +
+        '</tbody></table>';
+      document.getElementById('tab-results').innerHTML = html;
+    }
+
+    function renderStats() {
+      const sorted = [...results].sort((a, b) => b.avg - a.avg);
+      document.getElementById('tab-stats').innerHTML = '<h3>📈 Statistiche Complete</h3>' +
+        '<table><thead><tr><th>Squadra</th><th>Media</th><th>Totale</th><th>Max</th><th>Min</th><th>Std Dev</th><th>Consistenza</th></tr></thead><tbody>' +
+        sorted.map(r => 
+          '<tr><td style="text-align:left;font-weight:bold">' + r.name + '</td>' +
+          '<td>' + r.avg.toFixed(2) + '</td>' +
+          '<td>' + r.total.toFixed(1) + '</td>' +
+          '<td style="color:#10b981">' + r.high.toFixed(1) + '</td>' +
+          '<td style="color:#ef4444">' + r.low.toFixed(1) + '</td>' +
+          '<td>' + r.stdDev.toFixed(2) + '</td>' +
+          '<td><div class="consistency-bar"><div class="consistency-fill" style="width:' + r.consistency + '%;background:' + (r.consistency > 70 ? '#10b981' : r.consistency > 40 ? '#f59e0b' : '#ef4444') + '"></div></div></td></tr>'
+        ).join('') +
+        '</tbody></table>';
+    }
+
+    function renderPythagorean() {
+      const pyth = results.map(r => {
+        const exp = Math.pow(r.avg, 2) / (Math.pow(r.avg, 2) + Math.pow(70, 2));
+        const expectedPts = r.scores.length * 3 * exp;
+        const realPts = r.wins * 3 + r.draws;
+        return { ...r, pythWinRate: exp * 100, expectedPts, realPts, pythDiff: realPts - expectedPts };
+      }).sort((a, b) => b.pythWinRate - a.pythWinRate);
+      
+      document.getElementById('tab-pythagorean').innerHTML = '<h3>🔬 Classifica Pitagorica</h3>' +
+        '<div class="info-box"><b>Formula Pitagorica:</b> Win% = PF² / (PF² + PA²)<br>Stima la % di vittorie attesa basandosi sui punti fatti.</div>' +
+        '<table><thead><tr><th>#</th><th>Squadra</th><th>Media</th><th>Win% Atteso</th><th>Pts Reali</th><th>Pts Attesi</th><th>Diff</th></tr></thead><tbody>' +
+        pyth.map((r, i) => 
+          '<tr><td>' + (i + 1) + '</td><td style="text-align:left;font-weight:bold">' + r.name + '</td>' +
+          '<td>' + r.avg.toFixed(1) + '</td>' +
+          '<td>' + r.pythWinRate.toFixed(1) + '%</td>' +
+          '<td>' + r.realPts + '</td>' +
+          '<td>' + r.expectedPts.toFixed(1) + '</td>' +
+          '<td class="' + (r.pythDiff >= 0 ? 'luck-positive' : 'luck-negative') + '">' + (r.pythDiff >= 0 ? '+' : '') + r.pythDiff.toFixed(1) + '</td></tr>'
+        ).join('') +
+        '</tbody></table>';
+    }
+
+    function renderSchedule() {
+      document.getElementById('tab-schedule').innerHTML = '<h3>📅 Difficoltà Calendario</h3>' +
+        '<div class="info-box">Analisi della forza degli avversari affrontati (basata sulla media punti).</div>' +
+        '<p style="color:#94a3b8;text-align:center;padding:40px">Funzionalità disponibile con dati calendario completi</p>';
+    }
+
+    function renderRankings() {
+      const luckiest = [...results].sort((a, b) => b.luckIndex - a.luckIndex)[0];
+      const unluckiest = [...results].sort((a, b) => a.luckIndex - b.luckIndex)[0];
+      const mostConsistent = [...results].sort((a, b) => a.stdDev - b.stdDev)[0];
+      const bestAvg = [...results].sort((a, b) => b.avg - a.avg)[0];
+      const highestScore = [...results].sort((a, b) => b.high - a.high)[0];
+      
+      document.getElementById('tab-rankings').innerHTML = '<h3>🏆 Premi & Classifiche</h3>' +
+        '<div class="grid">' +
+        '<div class="card"><h3>🍀 Più Fortunato</h3><div style="font-size:24px;font-weight:bold;color:#10b981">' + luckiest.name + '</div><div style="color:#94a3b8">Indice: +' + luckiest.luckIndex.toFixed(1) + '</div></div>' +
+        '<div class="card"><h3>😢 Più Sfortunato</h3><div style="font-size:24px;font-weight:bold;color:#ef4444">' + unluckiest.name + '</div><div style="color:#94a3b8">Indice: ' + unluckiest.luckIndex.toFixed(1) + '</div></div>' +
+        '<div class="card"><h3>🎯 Più Costante</h3><div style="font-size:24px;font-weight:bold;color:#3b82f6">' + mostConsistent.name + '</div><div style="color:#94a3b8">Std Dev: ' + mostConsistent.stdDev.toFixed(2) + '</div></div>' +
+        '<div class="card"><h3>📊 Miglior Media</h3><div style="font-size:24px;font-weight:bold;color:#8b5cf6">' + bestAvg.name + '</div><div style="color:#94a3b8">Media: ' + bestAvg.avg.toFixed(2) + '</div></div>' +
+        '<div class="card"><h3>🚀 Record Punteggio</h3><div style="font-size:24px;font-weight:bold;color:#f59e0b">' + highestScore.name + '</div><div style="color:#94a3b8">Max: ' + highestScore.high.toFixed(1) + '</div></div>' +
+        '</div>';
+    }
+
+    function renderWhatIf() {
+      document.getElementById('tab-whatif').innerHTML = '<h3>🎰 What If - Simulazione Calendari</h3>' +
+        '<div class="whatif-controls"><label>Numero simulazioni: <input type="number" id="simCount" value="1000" min="100" max="10000"></label> ' +
+        '<button class="btn btn-primary" onclick="runWhatIf()">▶️ Simula</button></div>' +
+        '<div id="whatif-results"><p style="color:#94a3b8;text-align:center;padding:40px">Clicca "Simula" per generare calendari casuali</p></div>';
+    }
+
+    function runWhatIf() {
+      const simCount = parseInt(document.getElementById('simCount').value) || 1000;
+      const n = results.length;
+      const positionCounts = results.map(() => Array(n).fill(0));
+      
+      for (let sim = 0; sim < simCount; sim++) {
+        const standings = results.map(r => ({ name: r.name, pts: 0, scores: [...r.scores] }));
+        
+        for (let day = 0; day < days; day++) {
+          const dayTeams = standings.filter(t => t.scores[day] > 0);
+          const shuffled = [...dayTeams].sort(() => Math.random() - 0.5);
+          
+          for (let i = 0; i < shuffled.length - 1; i += 2) {
+            const t1 = shuffled[i], t2 = shuffled[i + 1];
+            if (t1.scores[day] > t2.scores[day]) { t1.pts += 3; }
+            else if (t1.scores[day] < t2.scores[day]) { t2.pts += 3; }
+            else { t1.pts += 1; t2.pts += 1; }
+          }
+        }
+        
+        standings.sort((a, b) => b.pts - a.pts);
+        standings.forEach((t, pos) => {
+          const idx = results.findIndex(r => r.name === t.name);
+          positionCounts[idx][pos]++;
+        });
+      }
+      
+      whatIfResults = results.map((r, i) => ({
+        name: r.name,
+        positions: positionCounts[i],
+        avgPos: positionCounts[i].reduce((sum, count, pos) => sum + count * (pos + 1), 0) / simCount,
+        first: positionCounts[i][0] / simCount * 100,
+        top3: (positionCounts[i][0] + positionCounts[i][1] + positionCounts[i][2]) / simCount * 100,
+        last: positionCounts[i][n - 1] / simCount * 100
+      })).sort((a, b) => a.avgPos - b.avgPos);
+      
+      const colors = ['#10b981', '#3b82f6', '#8b5cf6', '#f59e0b', '#ef4444', '#ec4899', '#06b6d4', '#84cc16'];
+      
+      document.getElementById('whatif-results').innerHTML = 
+        '<div class="simulation-stats">' +
+        '<div class="stat-card"><div class="value">' + simCount.toLocaleString() + '</div><div class="label">Simulazioni</div></div>' +
+        '<div class="stat-card"><div class="value">' + whatIfResults[0].name + '</div><div class="label">Favorito #1</div></div>' +
+        '<div class="stat-card"><div class="value">' + whatIfResults[0].first.toFixed(1) + '%</div><div class="label">Prob. Vittoria</div></div>' +
+        '</div>' +
+        '<table><thead><tr><th>Squadra</th><th>Pos Media</th><th>% 1°</th><th>% Top 3</th><th>% Ultimo</th><th>Distribuzione Posizioni</th></tr></thead><tbody>' +
+        whatIfResults.map((r, i) => 
+          '<tr><td style="text-align:left;font-weight:bold">' + r.name + '</td>' +
+          '<td>' + r.avgPos.toFixed(2) + '</td>' +
+          '<td style="color:#10b981;font-weight:bold">' + r.first.toFixed(1) + '%</td>' +
+          '<td>' + r.top3.toFixed(1) + '%</td>' +
+          '<td style="color:#ef4444">' + r.last.toFixed(1) + '%</td>' +
+          '<td><div class="position-bar">' + r.positions.map((count, pos) => 
+            '<div class="position-segment" style="width:' + (count / simCount * 100) + '%;background:' + colors[pos % colors.length] + '">' + (count / simCount > 0.05 ? Math.round(count / simCount * 100) + '%' : '') + '</div>'
+          ).join('') + '</div></td></tr>'
+        ).join('') +
+        '</tbody></table>' +
+        '<div class="whatif-legend">' + results.map((r, i) => '<div class="whatif-legend-item"><div class="whatif-legend-color" style="background:' + colors[i % colors.length] + '"></div>' + (i + 1) + '° posto</div>').join('') + '</div>';
+    }
+
+    function calculateH2H() {
+      h2hData = {};
+      results.forEach(t1 => {
+        h2hData[t1.name] = {};
+        results.forEach(t2 => {
+          if (t1.name === t2.name) return;
+          let wins = 0, draws = 0, losses = 0, ptsFor = 0, ptsAgainst = 0;
+          t1.scores.forEach((s1, i) => {
+            const s2 = t2.scores[i];
+            if (s1 > 0 && s2 > 0) {
+              ptsFor += s1; ptsAgainst += s2;
+              if (s1 > s2) wins++;
+              else if (s1 < s2) losses++;
+              else draws++;
+            }
+          });
+          h2hData[t1.name][t2.name] = { wins, draws, losses, ptsFor, ptsAgainst, matches: wins + draws + losses };
+        });
+      });
+      renderH2H();
+    }
+
+    function renderH2H() {
+      let html = '<h3>⚔️ Scontri Virtuali - Testa a Testa</h3>' +
+        '<div class="info-box">Matrice degli scontri diretti: ogni cella mostra V-P-S se le due squadre avessero giocato ogni giornata l\\'una contro l\\'altra.</div>' +
+        '<div class="h2h-matrix"><table><thead><tr><th></th>';
+      
+      results.forEach(t => { html += '<th><div class="team-header">' + t.name + '</div></th>'; });
+      html += '</tr></thead><tbody>';
+      
+      results.forEach(t1 => {
+        html += '<tr><th style="text-align:left;font-weight:bold">' + t1.name + '</th>';
+        results.forEach(t2 => {
+          if (t1.name === t2.name) {
+            html += '<td class="h2h-self">-</td>';
+          } else {
+            const h2h = h2hData[t1.name][t2.name];
+            const cls = h2h.wins > h2h.losses ? 'h2h-win' : h2h.wins < h2h.losses ? 'h2h-lose' : 'h2h-draw';
+            html += '<td class="h2h-cell ' + cls + '"><div class="record">' + h2h.wins + '-' + h2h.draws + '-' + h2h.losses + '</div></td>';
+          }
+        });
+        html += '</tr>';
+      });
+      
+      html += '</tbody></table></div>';
+      document.getElementById('tab-h2h').innerHTML = html;
+    }
+
+    function calculateVariance() {
+      varianceData = results.map(r => {
+        const sorted = [...r.scores].sort((a, b) => a - b);
+        const q1 = sorted[Math.floor(sorted.length * 0.25)];
+        const q3 = sorted[Math.floor(sorted.length * 0.75)];
+        const iqr = q3 - q1;
+        const cv = r.stdDev / r.avg * 100;
+        return { ...r, q1, q3, iqr, cv, isReliable: cv < 10 };
+      }).sort((a, b) => a.cv - b.cv);
+      renderVariance();
+    }
+
+    function renderVariance() {
+      const allScores = results.flatMap(r => r.scores);
+      const minScore = Math.min(...allScores);
+      const maxScore = Math.max(...allScores);
+      const range = maxScore - minScore;
+      
+      let html = '<h3>📉 Analisi Varianza</h3>' +
+        '<div class="info-box"><b>CV (Coefficiente di Variazione)</b>: Misura la dispersione relativa. CV < 10% = squadra affidabile.</div>' +
+        '<table><thead><tr><th>Squadra</th><th>Media</th><th>Std Dev</th><th>CV%</th><th>Min-Max</th><th>Tipo</th><th>Distribuzione</th></tr></thead><tbody>';
+      
+      varianceData.forEach(r => {
+        const barLeft = (r.low - minScore) / range * 100;
+        const barWidth = (r.high - r.low) / range * 100;
+        const avgPos = (r.avg - minScore) / range * 100;
+        
+        html += '<tr><td style="text-align:left;font-weight:bold">' + r.name + '</td>' +
+          '<td>' + r.avg.toFixed(1) + '</td>' +
+          '<td>' + r.stdDev.toFixed(2) + '</td>' +
+          '<td>' + r.cv.toFixed(1) + '%</td>' +
+          '<td>' + r.low.toFixed(0) + '-' + r.high.toFixed(0) + '</td>' +
+          '<td>' + (r.isReliable ? '<span class="reliable-badge">Affidabile</span>' : '<span class="boom-bust-badge">Boom/Bust</span>') + '</td>' +
+          '<td style="width:200px"><div class="variance-meter" style="height:20px"><div class="variance-range" style="left:' + barLeft + '%;width:' + barWidth + '%"></div><div class="variance-median" style="left:' + avgPos + '%"></div></div></td></tr>';
+      });
+      
+      html += '</tbody></table>';
+      document.getElementById('tab-variance').innerHTML = html;
+    }
+
+    renderTable();
+  <\/script>
+</body>
+</html>`}
+                                        style={{ 
+                                            width: '100%', 
+                                            height: '100%', 
+                                            border: 'none',
+                                            borderRadius: '16px'
+                                        }}
+                                        title="Tool Culo - Luck Analyzer"
+                                    />
                                 </div>
                             </div>
                         )}
@@ -2221,3 +2786,4 @@
     </script>
 </body>
 </html>
+
