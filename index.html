@@ -83,8 +83,11 @@
 11,Stiratoallagoccia,HISTORIAS Y SABORES,2,1,H
 11,GIOIA E RIVOLUZIONE,Sbrocca Junior,4,6,A
 11,Sbuchester United,CISK FC,1,2,A
-11,FC Salisburo,FC Ludopatykos,2,3,A`;
-
+11,FC Salisburo,FC Ludopatykos,2,3,A
+12,Sbrocca Junior,CISK FC,2,0,H
+12,FC Salisburo,Stiratoallagoccia,1,1,D
+12,HISTORIAS Y SABORES,Sbuchester United,1,4,A
+12,FC Ludopatykos,GIOIA E RIVOLUZIONE,4,2,H`;
         const defaultPointsCSV = `Date,HomeTeam,AwayTeam,HGoals,AGoals,Result
 1,Sbrocca Junior,Stiratoallagoccia,78.5,62.0,H
 1,CISK FC,FC Ludopatykos,65.0,71.5,A
@@ -129,7 +132,11 @@
 11,Stiratoallagoccia,HISTORIAS Y SABORES,71.0,66.5,H
 11,GIOIA E RIVOLUZIONE,Sbrocca Junior,75.5,82.0,A
 11,Sbuchester United,CISK FC,66.0,74.5,A
-11,FC Salisburo,FC Ludopatykos,70.0,76.5,A`;
+11,FC Salisburo,FC Ludopatykos,70.0,76.5,A
+12,Sbrocca Junior,CISK FC,72.0,61,H
+12,FC Salisburo,Stiratoallagoccia,66.0,69.5,D
+12,HISTORIAS Y SABORES,Sbuchester United,68.0,79.5,A
+12,FC Ludopatykos,GIOIA E RIVOLUZIONE,78.5,73.0,H`;
 
         const calculateElo = (matches, kFactor = 32) => {
             const elo = {};
