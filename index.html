@@ -637,8 +637,8 @@
                     awayGD: team.awayGF - team.awayGA
                 }));
             }, [matches]);
-            const currentGiornata = useMemo(() => { const played = matches.filter(m => m.HGoals !== ''); return played.length === 0 ? 1 : Math.max(...played.map(m => parseInt(m.Date))); }, [matches]);
-            const last3Matchdays = useMemo(() => {
+          const currentGiornata = useMemo(() => { const played = matches.filter(m => m.HGoals !== ''); return played.length === 0 ? 1 : Math.max(...played.map(m => parseInt(m.Date))); }, [matches]);
+          const last3Matchdays = useMemo(() => {
     const playedMatchdays = [...new Set(matches.filter(m => m.HGoals !== '').map(m => parseInt(m.Date)))].sort((a, b) => b - a);
     return playedMatchdays.slice(0, 3);
 }, [matches]);
