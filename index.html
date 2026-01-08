@@ -420,7 +420,6 @@
                     massey: (masseyRatings[team] || 0).toFixed(2),
                     colley: (colleyRatings[team] || 0.5).toFixed(3),
                     spi: (spiRatings[team] || 1).toFixed(2),
-                    sos: (sosRatings[team] || 0).toFixed(2),
                     keener: (keenerRatings[team] || 0).toFixed(2),
                     bt: (btRatings[team] || 1).toFixed(2)
                 }));
@@ -981,7 +980,6 @@
                                         <div><span className="text-blue-400 font-medium">Massey</span> = Minimi quadrati sulle differenze gol</div>
                                         <div><span className="text-purple-400 font-medium">Colley</span> = Bayesiano (0.5 = media)</div>
                                         <div><span className="text-pink-400 font-medium">SPI</span> = Indice potenza calcio (attacco/difesa)</div>
-                                        <div><span className="text-cyan-400 font-medium">SOS</span> = Forza calendario (media avversari)</div>
                                         <div><span className="text-orange-400 font-medium">Keener</span> = Autovettori, normalizzato a 100</div>
                                         <div><span className="text-red-400 font-medium">B-T</span> = Bradley-Terry probabilistico</div>
                                     </div>
@@ -1010,10 +1008,6 @@
                                         <p className="text-xs text-slate-400">Indice Potenza Calcio: rapporto forza attacco/difesa.</p>
                                     </div>
                                     <div className="glass rounded-xl p-4">
-                                        <h4 className="font-bold text-cyan-400 mb-1">SOS</h4>
-                                        <p className="text-xs text-slate-400">Forza Calendario: forza media degli avversari affrontati.</p>
-                                    </div>
-                                    <div className="glass rounded-xl p-4">
                                         <h4 className="font-bold text-orange-400 mb-1">Keener</h4>
                                         <p className="text-xs text-slate-400">Rating basato su autovettori dai margini partita.</p>
                                     </div>
@@ -1037,7 +1031,6 @@
                                                 <th className="px-4 py-3 text-center cursor-pointer hover:text-blue-400 transition-colors" onClick={() => handleRatingsSort('massey')}>Massey<SortIcon column="massey" current={ratingsSort} /></th>
                                                 <th className="px-4 py-3 text-center cursor-pointer hover:text-purple-400 transition-colors" onClick={() => handleRatingsSort('colley')}>Colley<SortIcon column="colley" current={ratingsSort} /></th>
                                                 <th className="px-4 py-3 text-center cursor-pointer hover:text-pink-400 transition-colors" onClick={() => handleRatingsSort('spi')}>SPI<SortIcon column="spi" current={ratingsSort} /></th>
-                                                <th className="px-4 py-3 text-center cursor-pointer hover:text-cyan-400 transition-colors" onClick={() => handleRatingsSort('sos')}>SOS<SortIcon column="sos" current={ratingsSort} /></th>
                                                 <th className="px-4 py-3 text-center cursor-pointer hover:text-orange-400 transition-colors" onClick={() => handleRatingsSort('keener')}>Keener<SortIcon column="keener" current={ratingsSort} /></th>
                                                 <th className="px-4 py-3 text-center cursor-pointer hover:text-red-400 transition-colors" onClick={() => handleRatingsSort('bt')}>B-T<SortIcon column="bt" current={ratingsSort} /></th>
                                             </tr></thead>
@@ -1054,7 +1047,6 @@
                                                     <td className="px-4 py-4 text-center"><span className={`font-bold ${parseFloat(team.massey) >= 0 ? 'text-blue-400' : 'text-red-400'}`}>{team.massey}</span></td>
                                                     <td className="px-4 py-4 text-center"><span className={`font-bold ${parseFloat(team.colley) >= 0.5 ? 'text-purple-400' : 'text-slate-400'}`}>{team.colley}</span></td>
                                                     <td className="px-4 py-4 text-center"><span className={`font-bold ${parseFloat(team.spi) >= 1 ? 'text-pink-400' : 'text-slate-400'}`}>{team.spi}</span></td>
-                                                    <td className="px-4 py-4 text-center"><span className="font-bold text-cyan-400">{team.sos}</span></td>
                                                     <td className="px-4 py-4 text-center"><span className="font-bold text-orange-400">{team.keener}</span></td>
                                                     <td className="px-4 py-4 text-center"><span className={`font-bold ${parseFloat(team.bt) >= 1 ? 'text-red-400' : 'text-slate-400'}`}>{team.bt}</span></td>
                                                 </tr>
@@ -1144,20 +1136,18 @@
                                         const masseyNorm = normalize(allRatings, 'massey');
                                         const colleyNorm = normalize(allRatings, 'colley');
                                         const spiNorm = normalize(allRatings, 'spi');
-                                        const sosNorm = normalize(allRatings, 'sos'); // Higher SOS = harder schedule
                                         const keenerNorm = normalize(allRatings, 'keener');
                                         const btNorm = normalize(allRatings, 'bt');
                                         
                                         // Weights for each system (can be adjusted)
                                         const weights = {
-                                            elo: 0.15,
-                                            pi: 0.10,
+                                            elo: 0.19,
+                                            pi: 0.14,
                                             massey: 0.15,
                                             colley: 0.15,
-                                            spi: 0.10,
-                                            sos: 0.10,
-                                            keener: 0.10,
-                                            bt: 0.15
+                                            spi: 0.09,
+                                            keener: 0.15,
+                                            bt: 0.13
                                         };
                                         
                                         const ensembleScores = allRatings.map((team, i) => {
@@ -1167,7 +1157,6 @@
                                                 masseyNorm[i] * weights.massey +
                                                 colleyNorm[i] * weights.colley +
                                                 spiNorm[i] * weights.spi +
-                                                sosNorm[i] * weights.sos +
                                                 keenerNorm[i] * weights.keener +
                                                 btNorm[i] * weights.bt
                                             ) * 100;
@@ -1181,7 +1170,6 @@
                                                     massey: (masseyNorm[i] * 100).toFixed(0),
                                                     colley: (colleyNorm[i] * 100).toFixed(0),
                                                     spi: (spiNorm[i] * 100).toFixed(0),
-                                                    sos: (sosNorm[i] * 100).toFixed(0),
                                                     keener: (keenerNorm[i] * 100).toFixed(0),
                                                     bt: (btNorm[i] * 100).toFixed(0)
                                                 }
@@ -1219,13 +1207,12 @@
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                        <div className="grid grid-cols-4 md:grid-cols-8 gap-2 text-xs">
+                                                        <div className="grid grid-cols-4 md:grid-cols-7 gap-2 text-xs">
                                                             <div className="text-center"><span className="text-amber-400 font-medium">ELO</span><br/><span className="text-slate-300">{team.components.elo}</span></div>
                                                             <div className="text-center"><span className="text-emerald-400 font-medium">Pi</span><br/><span className="text-slate-300">{team.components.pi}</span></div>
                                                             <div className="text-center"><span className="text-blue-400 font-medium">Mas</span><br/><span className="text-slate-300">{team.components.massey}</span></div>
                                                             <div className="text-center"><span className="text-purple-400 font-medium">Col</span><br/><span className="text-slate-300">{team.components.colley}</span></div>
                                                             <div className="text-center"><span className="text-pink-400 font-medium">SPI</span><br/><span className="text-slate-300">{team.components.spi}</span></div>
-                                                            <div className="text-center"><span className="text-cyan-400 font-medium">SOS</span><br/><span className="text-slate-300">{team.components.sos}</span></div>
                                                             <div className="text-center"><span className="text-orange-400 font-medium">Keen</span><br/><span className="text-slate-300">{team.components.keener}</span></div>
                                                             <div className="text-center"><span className="text-red-400 font-medium">B-T</span><br/><span className="text-slate-300">{team.components.bt}</span></div>
                                                         </div>
@@ -1234,7 +1221,7 @@
                                                 
                                                 {/* Weights Legend */}
                                                 <div className="mt-4 pt-4 border-t border-white/10">
-                                                    <p className="text-xs text-slate-500 mb-2">Pesi: ELO 15% • Pi 10% • Massey 15% • Colley 15% • SPI 10% • SOS 10% • Keener 10% • B-T 15%</p>
+                                                    <p className="text-xs text-slate-500 mb-2">Pesi: ELO 19% • Pi 14% • Massey 15% • Colley 15% • SPI 9% • Keener 15% • B-T 13%</p>
                                                     <p className="text-xs text-slate-500">Ogni punteggio componente è normalizzato (0-100). Il punteggio finale è la media pesata.</p>
                                                 </div>
                                             </div>
