@@ -1557,7 +1557,7 @@
                                 )}
                             </div>
                         )}
-                       {activeTab === 'last3' && ( {
+                       {activeTab === 'last3' && (() => {
     // Get last 3 matchdays
     const playedMatchdays = [...new Set(matches.filter(m => m.HGoals !== '').map(m => parseInt(m.Date)))].sort((a, b) => b - a);
     const last3Matchdays = playedMatchdays.slice(0, 3);
@@ -2226,7 +2226,7 @@
                                     </div>
                                 </div>
                             </div>
-                        )}
+                        })()}
 
                         {activeTab === 'simulator' && (
                             <div className="space-y-6">
