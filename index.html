@@ -764,6 +764,242 @@
                                         </div>
                                     ))}
                                 </div>
+                            {/* Ultime 3 Partite Section */}
+                                <div className="glass rounded-2xl p-6 mt-6">
+                                    <div className="flex items-center gap-3 mb-4">
+                                        <div className="w-10 h-10 bg-orange-500/20 rounded-xl flex items-center justify-center text-orange-400">🔥</div>
+                                        <div>
+                                            <h3 className="font-bold text-lg">Ultime 3 Partite</h3>
+                                            <p className="text-slate-400 text-sm">Forma recente delle squadre</p>
+                                        </div>
+                                    </div>
+                                    
+                                    {(() => {
+                                        // Calculate last 3 matchdays
+                                        const playedMatchdays = [...new Set(matches.filter(m => m.HGoals !== '').map(m => parseInt(m.Date)))].sort((a, b) => b - a);
+                                        const last3Days = playedMatchdays.slice(0, 3);
+                                        
+                                        if (last3Days.length === 0) {
+                                            return <p className="text-slate-400 text-center py-4">Nessuna partita giocata</p>;
+                                        }
+                                        
+                                        // Calculate stats for each team in last 3
+                                        const teams = [...new Set(matches.flatMap(m => [m.HomeTeam, m.AwayTeam]))];
+                                        
+                                        const last3Data = teams.map(team => {
+                                            // Last 3 matches
+                                            const teamMatches = matches.filter(m => 
+                                                last3Days.includes(parseInt(m.Date)) && 
+                                                (m.HomeTeam === team || m.AwayTeam === team) &&
+                                                m.HGoals !== ''
+                                            );
+                                            
+                                            const teamPointsMatches = pointsMatches.filter(m => 
+                                                last3Days.includes(parseInt(m.Date)) && 
+                                                (m.HomeTeam === team || m.AwayTeam === team) &&
+                                                m.HGoals !== ''
+                                            );
+                                            
+                                            let wins = 0, draws = 0, losses = 0, gf = 0, ga = 0, fantaFor = 0, fantaAgainst = 0;
+                                            const results = [];
+                                            
+                                            teamMatches.forEach(match => {
+                                                const isHome = match.HomeTeam === team;
+                                                gf += isHome ? parseInt(match.HGoals) : parseInt(match.AGoals);
+                                                ga += isHome ? parseInt(match.AGoals) : parseInt(match.HGoals);
+                                                
+                                                if ((isHome && match.Result === 'H') || (!isHome && match.Result === 'A')) {
+                                                    wins++; results.push('W');
+                                                } else if (match.Result === 'D') {
+                                                    draws++; results.push('D');
+                                                } else {
+                                                    losses++; results.push('L');
+                                                }
+                                            });
+                                            
+                                            teamPointsMatches.forEach(match => {
+                                                const isHome = match.HomeTeam === team;
+                                                fantaFor += parseFloat(isHome ? match.HGoals : match.AGoals) || 0;
+                                                fantaAgainst += parseFloat(isHome ? match.AGoals : match.HGoals) || 0;
+                                            });
+                                            
+                                            // Season averages
+                                            const allMatches = matches.filter(m => (m.HomeTeam === team || m.AwayTeam === team) && m.HGoals !== '');
+                                            let seasonGF = 0, seasonGA = 0;
+                                            allMatches.forEach(m => {
+                                                const isHome = m.HomeTeam === team;
+                                                seasonGF += isHome ? parseInt(m.HGoals) : parseInt(m.AGoals);
+                                                seasonGA += isHome ? parseInt(m.AGoals) : parseInt(m.HGoals);
+                                            });
+                                            const seasonAvgGF = allMatches.length > 0 ? seasonGF / allMatches.length : 0;
+                                            const seasonAvgGA = allMatches.length > 0 ? seasonGA / allMatches.length : 0;
+                                            
+                                            const gamesPlayed = teamMatches.length;
+                                            const points = wins * 3 + draws;
+                                            const last3AvgGF = gamesPlayed > 0 ? gf / gamesPlayed : 0;
+                                            const last3AvgGA = gamesPlayed > 0 ? ga / gamesPlayed : 0;
+                                            
+                                            // Hot/Cold streak
+                                            const isHot = wins >= 2 || (wins === 1 && draws === 2) || points >= 7;
+                                            const isCold = losses >= 2 || points <= 1;
+                                            
+                                            return {
+                                                team,
+                                                gamesPlayed,
+                                                points,
+                                                wins, draws, losses,
+                                                gf, ga,
+                                                gd: gf - ga,
+                                                fantaFor: fantaFor.toFixed(1),
+                                                fantaAgainst: fantaAgainst.toFixed(1),
+                                                fantaDiff: (fantaFor - fantaAgainst).toFixed(1),
+                                                results,
+                                                last3AvgGF,
+                                                last3AvgGA,
+                                                seasonAvgGF,
+                                                seasonAvgGA,
+                                                gfRatio: seasonAvgGF > 0 ? (last3AvgGF / seasonAvgGF).toFixed(2) : '0.00',
+                                                gaRatio: seasonAvgGA > 0 ? (last3AvgGA / seasonAvgGA).toFixed(2) : '0.00',
+                                                isHot,
+                                                isCold,
+                                                streak: isHot ? '🔥' : isCold ? '❄️' : '➖'
+                                            };
+                                        }).filter(t => t.gamesPlayed > 0).sort((a, b) => b.points - a.points || b.gd - a.gd);
+                                        
+                                        // Find hottest and coldest
+                                        const hottest = last3Data.filter(t => t.isHot);
+                                        const coldest = last3Data.filter(t => t.isCold);
+                                        
+                                        return (
+                                            <>
+                                                {/* Hot/Cold Summary */}
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                                                    <div className="bg-gradient-to-br from-orange-500/20 to-red-500/20 rounded-xl p-4 border border-orange-500/30">
+                                                        <h4 className="font-bold text-orange-400 mb-2 flex items-center gap-2">🔥 On Fire (Hot Streak)</h4>
+                                                        {hottest.length > 0 ? (
+                                                            <div className="space-y-2">
+                                                                {hottest.slice(0, 3).map(t => (
+                                                                    <div key={t.team} className="flex items-center justify-between">
+                                                                        <span className="font-medium">{t.team}</span>
+                                                                        <div className="flex items-center gap-2">
+                                                                            <div className="flex gap-1">
+                                                                                {t.results.map((r, i) => (
+                                                                                    <span key={i} className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${r === 'W' ? 'bg-emerald-500' : r === 'D' ? 'bg-amber-500' : 'bg-red-500'}`}>{r}</span>
+                                                                                ))}
+                                                                            </div>
+                                                                            <span className="text-orange-400 font-bold">{t.points} pts</span>
+                                                                        </div>
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        ) : (
+                                                            <p className="text-slate-400 text-sm">Nessuna squadra in hot streak</p>
+                                                        )}
+                                                    </div>
+                                                    
+                                                    <div className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-xl p-4 border border-blue-500/30">
+                                                        <h4 className="font-bold text-blue-400 mb-2 flex items-center gap-2">❄️ Cold Streak</h4>
+                                                        {coldest.length > 0 ? (
+                                                            <div className="space-y-2">
+                                                                {coldest.slice(0, 3).map(t => (
+                                                                    <div key={t.team} className="flex items-center justify-between">
+                                                                        <span className="font-medium">{t.team}</span>
+                                                                        <div className="flex items-center gap-2">
+                                                                            <div className="flex gap-1">
+                                                                                {t.results.map((r, i) => (
+                                                                                    <span key={i} className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${r === 'W' ? 'bg-emerald-500' : r === 'D' ? 'bg-amber-500' : 'bg-red-500'}`}>{r}</span>
+                                                                                ))}
+                                                                            </div>
+                                                                            <span className="text-blue-400 font-bold">{t.points} pts</span>
+                                                                        </div>
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        ) : (
+                                                            <p className="text-slate-400 text-sm">Nessuna squadra in cold streak</p>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                
+                                                {/* Legend */}
+                                                <div className="bg-white/5 rounded-lg p-3 mb-4 text-xs text-slate-400">
+                                                    <span className="font-medium text-white">Legenda:</span> GF/GA = Gol Fatti/Subiti | FF/FS = FantaPunti Fatti/Subiti | 
+                                                    <span className="text-emerald-400"> GF Ratio {'>'}1 = sopra media</span> | 
+                                                    <span className="text-red-400"> GA Ratio {'>'}1 = peggio della media</span>
+                                                </div>
+                                                
+                                                {/* Table */}
+                                                <div className="overflow-x-auto">
+                                                    <table className="w-full text-sm">
+                                                        <thead>
+                                                            <tr className="text-slate-400 border-b border-white/10">
+                                                                <th className="px-3 py-2 text-left">#</th>
+                                                                <th className="px-3 py-2 text-left">Squadra</th>
+                                                                <th className="px-3 py-2 text-center">Forma</th>
+                                                                <th className="px-3 py-2 text-center">Pts</th>
+                                                                <th className="px-3 py-2 text-center">GF</th>
+                                                                <th className="px-3 py-2 text-center">GA</th>
+                                                                <th className="px-3 py-2 text-center">DR</th>
+                                                                <th className="px-3 py-2 text-center">FF</th>
+                                                                <th className="px-3 py-2 text-center">FS</th>
+                                                                <th className="px-3 py-2 text-center" title="Gol Fatti / Media Stagionale">GF Ratio</th>
+                                                                <th className="px-3 py-2 text-center" title="Gol Subiti / Media Stagionale">GA Ratio</th>
+                                                                <th className="px-3 py-2 text-center">Trend</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {last3Data.map((t, idx) => (
+                                                                <tr key={t.team} className={`border-b border-white/5 hover:bg-white/5 ${t.isHot ? 'bg-orange-500/5' : t.isCold ? 'bg-blue-500/5' : ''}`}>
+                                                                    <td className="px-3 py-2">
+                                                                        <span className={`inline-flex items-center justify-center w-6 h-6 rounded-lg font-bold text-xs ${
+                                                                            idx === 0 ? 'bg-amber-500 text-slate-900' :
+                                                                            idx === 1 ? 'bg-slate-300 text-slate-900' :
+                                                                            idx === 2 ? 'bg-orange-500 text-white' :
+                                                                            'bg-white/10'
+                                                                        }`}>{idx + 1}</span>
+                                                                    </td>
+                                                                    <td className="px-3 py-2 font-bold">{t.team}</td>
+                                                                    <td className="px-3 py-2">
+                                                                        <div className="flex justify-center gap-1">
+                                                                            {t.results.map((r, i) => (
+                                                                                <span key={i} className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${r === 'W' ? 'bg-emerald-500' : r === 'D' ? 'bg-amber-500' : 'bg-red-500'}`}>{r}</span>
+                                                                            ))}
+                                                                        </div>
+                                                                    </td>
+                                                                    <td className="px-3 py-2 text-center font-bold">{t.points}</td>
+                                                                    <td className="px-3 py-2 text-center text-emerald-400">{t.gf}</td>
+                                                                    <td className="px-3 py-2 text-center text-red-400">{t.ga}</td>
+                                                                    <td className="px-3 py-2 text-center">
+                                                                        <span className={`font-bold ${t.gd > 0 ? 'text-emerald-400' : t.gd < 0 ? 'text-red-400' : 'text-slate-400'}`}>
+                                                                            {t.gd > 0 ? '+' : ''}{t.gd}
+                                                                        </span>
+                                                                    </td>
+                                                                    <td className="px-3 py-2 text-center text-purple-400">{t.fantaFor}</td>
+                                                                    <td className="px-3 py-2 text-center text-pink-400">{t.fantaAgainst}</td>
+                                                                    <td className="px-3 py-2 text-center">
+                                                                        <span className={`font-bold ${parseFloat(t.gfRatio) >= 1 ? 'text-emerald-400' : 'text-red-400'}`}>
+                                                                            {t.gfRatio}x
+                                                                        </span>
+                                                                    </td>
+                                                                    <td className="px-3 py-2 text-center">
+                                                                        <span className={`font-bold ${parseFloat(t.gaRatio) <= 1 ? 'text-emerald-400' : 'text-red-400'}`}>
+                                                                            {t.gaRatio}x
+                                                                        </span>
+                                                                    </td>
+                                                                    <td className="px-3 py-2 text-center text-xl">{t.streak}</td>
+                                                                </tr>
+                                                            ))}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                                
+                                                <p className="text-xs text-slate-500 mt-3 text-center">
+                                                    Basato sulle giornate {last3Days.join(', ')} | 🔥 Hot = 7+ punti o 2+ vittorie | ❄️ Cold = 1 punto o meno o 2+ sconfitte
+                                                </p>
+                                            </>
+                                        );
+                                    })()}
+                                </div>
                             </div>
                         )}
 
