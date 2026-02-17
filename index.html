@@ -128,7 +128,11 @@
 22,FC Ludopatykos,CISK FC,3,4,A
 22,FC Salisburo,Sbuchester United,1,3,A
 22,GIOIA E RIVOLUZIONE,Sbrocca Junior,6,4,H
-22,HISTORIAS Y SABORES,Stiratoallagoccia,3,5,A`;
+22,HISTORIAS Y SABORES,Stiratoallagoccia,3,5,A
+23,CISK FC,GIOIA E RIVOLUZIONE,4,2,H
+23,Sbuchester United,FC Ludopatykos,0,1,A
+23,Stiratoallagoccia,FC Salisburo,5,3,H
+23,Sbrocca Junior,HISTORIAS Y SABORES,0,2,A`;
         const defaultPointsCSV = `Date,HomeTeam,AwayTeam,HGoals,AGoals,Result
 1,Sbrocca Junior,Stiratoallagoccia,80.5,65.0,H
 1,CISK FC,FC Ludopatykos,65.5,68.0,A
@@ -217,7 +221,11 @@
 22,FC Ludopatykos,CISK FC,77.5,78.0,A
 22,FC Salisburo,Sbuchester United,67.5,76.5,A
 22,GIOIA E RIVOLUZIONE,Sbrocca Junior,87.0,79.5,H
-22,HISTORIAS Y SABORES,Stiratoallagoccia,77.5,84.0,A`;
+22,HISTORIAS Y SABORES,Stiratoallagoccia,77.5,84.0,A
+23,CISK FC,GIOIA E RIVOLUZIONE,79.5,70.5,H
+23,Sbuchester United,FC Ludopatykos,65.0,68.5,A
+23,Stiratoallagoccia,FC Salisburo,83.0,74.5,H
+23,Sbrocca Junior,HISTORIAS Y SABORES,59.5,70.5,A`;
         const calculateElo = (matches, kFactor = 32) => {
             const elo = {};
             const teams = [...new Set(matches.flatMap(m => [m.HomeTeam, m.AwayTeam]))];
@@ -2478,14 +2486,14 @@
                         {activeTab === 'coachstats' && (() => {
                             // Coach data from the image
                             const coachData = [
-                                { name: 'LEO', wins: 35, draws: 6, losses: 23 },
-                                { name: 'GIANMARCO', wins: 28, draws: 10, losses: 27 },
-                                { name: 'AMATTE', wins: 29, draws: 10, losses: 25 },
-                                { name: 'CATELLO', wins: 21, draws: 19, losses: 21 },
-                                { name: 'LOLLO', wins: 22, draws: 10, losses: 33 },
-                                { name: 'MATTEO NEGRO', wins: 27, draws: 11, losses: 24 },
-                                { name: 'ELIA', wins: 7, draws: 4, losses: 11 },
-                                { name: 'MARCO', wins: 7, draws: 4, losses: 11 },
+                                { name: 'LEO', wins: 36, draws: 6, losses: 23 },
+                                { name: 'GIANMARCO', wins: 30, draws: 10, losses: 27 },
+                                { name: 'AMATTE', wins: 29, draws: 10, losses: 26 },
+                                { name: 'CATELLO', wins: 21, draws: 19, losses: 22 },
+                                { name: 'LOLLO', wins: 22, draws: 10, losses: 34 },
+                                { name: 'MATTEO NEGRO', wins: 28, draws: 11, losses: 25 },
+                                { name: 'ELIA', wins: 7, draws: 4, losses: 13 },
+                                { name: 'MARCO', wins: 9, draws: 4, losses: 11 },
                             ].map(coach => ({
                                 ...coach,
                                 total: coach.wins + coach.draws + coach.losses,
